@@ -63,16 +63,15 @@ public class MainActivity extends Activity {
                 "App-Einstellungen"
         };
 
-        private final RectF[] hit =
-                new RectF[6];
+        private final RectF[] hit = new RectF[6];
 
         /*
-         * =========================================
+         * =====================================================
          * ANIMATION
-         * =========================================
+         * =====================================================
          */
 
-        private float logoOffset = -700f;
+        private float logoOffset = -500f;
 
         private final float[] buttonOffset =
                 new float[6];
@@ -82,21 +81,24 @@ public class MainActivity extends Activity {
         AutoCheckView() {
             super(MainActivity.this);
 
+            /*
+             * Hintergrundbild
+             */
             background =
                     BitmapFactory.decodeResource(
                             getResources(),
                             R.drawable.home_background
                     );
 
+            /*
+             * Dein neues Auto-Check-Logo
+             */
             logo =
                     BitmapFactory.decodeResource(
                             getResources(),
                             R.drawable.auto_check_logo
                     );
 
-            /*
-             * Hochwertige Bitmap-Darstellung.
-             */
             paint.setFilterBitmap(true);
             paint.setDither(true);
             paint.setAntiAlias(true);
@@ -113,9 +115,9 @@ public class MainActivity extends Activity {
         }
 
         /*
-         * =========================================
+         * =====================================================
          * STARTANIMATION
-         * =========================================
+         * =====================================================
          */
 
         private void startIntro() {
@@ -133,14 +135,14 @@ public class MainActivity extends Activity {
             }
 
             /*
-             * Obere Reihe kommt von links.
+             * Obere drei Buttons kommen von links.
              */
             buttonOffset[0] = -width;
             buttonOffset[1] = -width;
             buttonOffset[2] = -width;
 
             /*
-             * Untere Reihe kommt von rechts.
+             * Untere drei Buttons kommen von rechts.
              */
             buttonOffset[3] = width;
             buttonOffset[4] = width;
@@ -153,16 +155,16 @@ public class MainActivity extends Activity {
                     ObjectAnimator.ofFloat(
                             this,
                             "logoOffset",
-                            -700f,
+                            -500f,
                             0f
                     );
 
-            logoAnimation.setDuration(1450);
+            logoAnimation.setDuration(1400);
 
             /*
-             * Button-Animationen.
+             * Buttonanimation
              */
-            ArrayList<Animator> list =
+            ArrayList<Animator> animations =
                     new ArrayList<>();
 
             for (int i = 0; i < 6; i++) {
@@ -175,38 +177,40 @@ public class MainActivity extends Activity {
                                 0f
                         );
 
-                animation.setDuration(1050);
+                animation.setDuration(1000);
 
                 /*
-                 * Leichte Staffelung.
+                 * Kleine Staffelung.
                  */
                 animation.setStartDelay(
                         (i % 3) * 90
                 );
 
-                list.add(animation);
+                animations.add(animation);
             }
 
-            AnimatorSet buttons =
+            AnimatorSet buttonSet =
                     new AnimatorSet();
 
-            buttons.playTogether(list);
-
-            AnimatorSet complete =
-                    new AnimatorSet();
-
-            complete.playTogether(
-                    logoAnimation,
-                    buttons
+            buttonSet.playTogether(
+                    animations
             );
 
-            complete.start();
+            AnimatorSet all =
+                    new AnimatorSet();
+
+            all.playTogether(
+                    logoAnimation,
+                    buttonSet
+            );
+
+            all.start();
         }
 
         /*
-         * =========================================
+         * =====================================================
          * LOGO PROPERTY
-         * =========================================
+         * =====================================================
          */
 
         public void setLogoOffset(float value) {
@@ -219,9 +223,9 @@ public class MainActivity extends Activity {
         }
 
         /*
-         * =========================================
+         * =====================================================
          * BUTTON PROPERTIES
-         * =========================================
+         * =====================================================
          */
 
         public void setButtonOffset0(float value) {
@@ -279,9 +283,9 @@ public class MainActivity extends Activity {
         }
 
         /*
-         * =========================================
+         * =====================================================
          * HAUPTZEICHNUNG
-         * =========================================
+         * =====================================================
          */
 
         @Override
@@ -293,11 +297,8 @@ public class MainActivity extends Activity {
             int height = getHeight();
 
             /*
-             * =====================================
-             * HINTERGRUND
-             * =====================================
+             * Hintergrund
              */
-
             drawBackground(
                     canvas,
                     width,
@@ -305,65 +306,35 @@ public class MainActivity extends Activity {
             );
 
             /*
-             * =====================================
-             * ALTEN LOGO-BEREICH ABDECKEN
-             * =====================================
+             * =================================================
+             * OBEREN BEREICH SAUBER ABDECKEN
+             * =================================================
              *
-             * Wichtig:
-             * Nicht bis zum Auto schwarz machen.
+             * Der originale Hintergrund enthält bereits
+             * ein Auto-Check-Logo.
+             *
+             * Dieses wird komplett abgedeckt.
+             *
+             * Danach zeichnen wir unser eigenes Logo.
              */
 
-            LinearGradient topFade =
-                    new LinearGradient(
-                            0,
-                            0,
-                            0,
-                            height * 0.40f,
-
-                            new int[]{
-                                    Color.rgb(0, 0, 0),
-                                    Color.rgb(0, 0, 0),
-                                    Color.argb(
-                                            230,
-                                            0,
-                                            0,
-                                            0
-                                    ),
-                                    Color.argb(
-                                            0,
-                                            0,
-                                            0,
-                                            0
-                                    )
-                            },
-
-                            new float[]{
-                                    0f,
-                                    0.48f,
-                                    0.76f,
-                                    1f
-                            },
-
-                            Shader.TileMode.CLAMP
-                    );
-
-            paint.setShader(topFade);
+            paint.setShader(null);
             paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Color.BLACK);
+            paint.setAlpha(255);
 
             canvas.drawRect(
                     0,
                     0,
                     width,
-                    height * 0.40f,
+                    height * 0.345f,
                     paint
             );
 
-            paint.setShader(null);
-
             /*
-             * =====================================
+             * =================================================
              * NEUES LOGO
-             * =====================================
+             * =================================================
              */
 
             drawLogo(
@@ -373,23 +344,24 @@ public class MainActivity extends Activity {
             );
 
             /*
-             * =====================================
-             * UNTEREN ALTEN BUTTONBEREICH
-             * KOMPLETT SCHWARZ
-             * =====================================
+             * =================================================
+             * UNTEREN ALTEN BUTTONBEREICH ABDECKEN
+             * =================================================
              *
-             * Etwas höher als vorher, damit wirklich
-             * keine alten Hintergrund-Buttons mehr
-             * sichtbar sind.
+             * Die alten Buttons aus dem JPG verschwinden.
+             *
+             * Wir beginnen die schwarze Fläche erst kurz
+             * vor unserem neuen Buttonbereich.
              */
 
-            paint.setColor(Color.BLACK);
-            paint.setAlpha(250);
+            paint.setShader(null);
             paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Color.BLACK);
+            paint.setAlpha(252);
 
             canvas.drawRect(
                     0,
-                    height * 0.655f,
+                    height * 0.705f,
                     width,
                     height,
                     paint
@@ -398,9 +370,9 @@ public class MainActivity extends Activity {
             paint.setAlpha(255);
 
             /*
-             * =====================================
+             * =================================================
              * NEUE BUTTONS
-             * =====================================
+             * =================================================
              */
 
             drawButtons(
@@ -411,9 +383,9 @@ public class MainActivity extends Activity {
         }
 
         /*
-         * =========================================
+         * =====================================================
          * HINTERGRUND
-         * =========================================
+         * =====================================================
          */
 
         private void drawBackground(
@@ -423,7 +395,11 @@ public class MainActivity extends Activity {
         ) {
 
             if (background == null) {
-                canvas.drawColor(Color.BLACK);
+
+                canvas.drawColor(
+                        Color.BLACK
+                );
+
                 return;
             }
 
@@ -435,17 +411,15 @@ public class MainActivity extends Activity {
             );
 
             /*
-             * Cover-Scaling.
-             *
-             * Das Seitenverhältnis bleibt erhalten.
+             * Hintergrund proportional aufziehen.
              */
             float scale =
                     Math.max(
-                            (float) width
-                                    / background.getWidth(),
+                            (float) width /
+                                    background.getWidth(),
 
-                            (float) height
-                                    / background.getHeight()
+                            (float) height /
+                                    background.getHeight()
                     );
 
             float scaledWidth =
@@ -457,10 +431,12 @@ public class MainActivity extends Activity {
                             * scale;
 
             float left =
-                    (width - scaledWidth) / 2f;
+                    (width - scaledWidth)
+                            / 2f;
 
             float top =
-                    (height - scaledHeight) / 2f;
+                    (height - scaledHeight)
+                            / 2f;
 
             destination.set(
                     left,
@@ -489,9 +465,9 @@ public class MainActivity extends Activity {
         }
 
         /*
-         * =========================================
+         * =====================================================
          * LOGO
-         * =========================================
+         * =====================================================
          */
 
         private void drawLogo(
@@ -506,16 +482,20 @@ public class MainActivity extends Activity {
 
             canvas.save();
 
+            /*
+             * Das Logo kommt von oben herunter.
+             */
             canvas.translate(
                     0,
                     logoOffset
             );
 
             /*
-             * Logo fast über die komplette Breite.
+             * Logo etwas kleiner als die komplette
+             * Bildschirmbreite, damit es sauber wirkt.
              */
             float logoWidth =
-                    width * 1.04f;
+                    width * 0.98f;
 
             float ratio =
                     (float) logo.getHeight()
@@ -525,10 +505,11 @@ public class MainActivity extends Activity {
                     logoWidth * ratio;
 
             /*
-             * Maximale Höhe des oberen Bereichs.
+             * Logo darf ungefähr den oberen
+             * Drittelbereich ausfüllen.
              */
             float maxHeight =
-                    height * 0.365f;
+                    height * 0.31f;
 
             if (logoHeight > maxHeight) {
 
@@ -539,8 +520,16 @@ public class MainActivity extends Activity {
                         logoHeight / ratio;
             }
 
-            float left =
-                    (width - logoWidth) / 2f;
+            /*
+             * Jetzt kommt das Logo bewusst etwas
+             * weiter nach unten.
+             */
+            float logoTop =
+                    height * 0.035f;
+
+            float logoLeft =
+                    (width - logoWidth)
+                            / 2f;
 
             Rect logoSource =
                     new Rect(
@@ -552,15 +541,12 @@ public class MainActivity extends Activity {
 
             RectF logoDestination =
                     new RectF(
-                            left,
-                            0,
-                            left + logoWidth,
-                            logoHeight
+                            logoLeft,
+                            logoTop,
+                            logoLeft + logoWidth,
+                            logoTop + logoHeight
                     );
 
-            /*
-             * Hochwertige Darstellung.
-             */
             paint.setShader(null);
             paint.setAlpha(255);
             paint.setFilterBitmap(true);
@@ -578,9 +564,9 @@ public class MainActivity extends Activity {
         }
 
         /*
-         * =========================================
+         * =====================================================
          * BUTTONS
-         * =========================================
+         * =====================================================
          */
 
         private void drawButtons(
@@ -590,19 +576,19 @@ public class MainActivity extends Activity {
         ) {
 
             /*
-             * Sehr kleine Seitenränder.
+             * Sehr kleine Außenränder.
              */
             float side =
                     width * 0.018f;
 
             /*
-             * Gleichmäßiger Spaltenabstand.
+             * Abstand zwischen den Buttons.
              */
             float gap =
                     width * 0.014f;
 
             /*
-             * Maximale Breite.
+             * Drei gleich große Spalten.
              */
             float buttonWidth =
                     (
@@ -612,26 +598,25 @@ public class MainActivity extends Activity {
                     ) / 3f;
 
             /*
-             * Buttons etwas kompakter in der Höhe,
-             * damit unten genug Sicherheitsabstand
-             * zur Android-Leiste bleibt.
+             * Große Buttons.
              */
             float buttonHeight =
-                    height * 0.112f;
+                    height * 0.105f;
 
             /*
-             * WICHTIG:
+             * =================================================
+             * POSITION
+             * =================================================
              *
-             * Die komplette Button-Gruppe wird
-             * gegenüber der vorherigen Version
-             * deutlich nach oben verschoben.
+             * Die komplette Buttongruppe wird etwas höher
+             * gesetzt.
              */
 
             float firstY =
-                    height * 0.685f;
+                    height * 0.715f;
 
             float secondY =
-                    height * 0.815f;
+                    height * 0.835f;
 
             for (int i = 0; i < 6; i++) {
 
@@ -643,8 +628,8 @@ public class MainActivity extends Activity {
 
                 float x =
                         side
-                        + column
-                        * (buttonWidth + gap)
+                        + column *
+                        (buttonWidth + gap)
                         + buttonOffset[i];
 
                 float y =
@@ -673,9 +658,9 @@ public class MainActivity extends Activity {
         }
 
         /*
-         * =========================================
+         * =====================================================
          * BUTTON DESIGN
-         * =========================================
+         * =====================================================
          */
 
         private void drawButton(
@@ -689,10 +674,12 @@ public class MainActivity extends Activity {
         ) {
 
             boolean red =
-                    label.equals("MEIN AUTO");
+                    label.equals(
+                            "MEIN AUTO"
+                    );
 
             /*
-             * Button-Hintergrund.
+             * Hintergrund
              */
             paint.setShader(null);
             paint.setStyle(
@@ -721,14 +708,14 @@ public class MainActivity extends Activity {
             }
 
             /*
-             * Professioneller Schatten.
+             * Schatten
              */
             paint.setShadowLayer(
                     12,
                     0,
                     5,
                     Color.argb(
-                            210,
+                            220,
                             0,
                             0,
                             0
@@ -750,14 +737,16 @@ public class MainActivity extends Activity {
             paint.clearShadowLayer();
 
             /*
-             * Rahmen.
+             * Rahmen
              */
             paint.setStyle(
                     Paint.Style.STROKE
             );
 
             paint.setStrokeWidth(
-                    pressed ? 5f : 2.5f
+                    pressed
+                            ? 5f
+                            : 2.5f
             );
 
             if (red) {
@@ -798,7 +787,7 @@ public class MainActivity extends Activity {
             );
 
             /*
-             * Icon.
+             * Icon
              */
             drawIcon(
                     canvas,
@@ -809,7 +798,7 @@ public class MainActivity extends Activity {
             );
 
             /*
-             * Text.
+             * Beschriftung
              */
             paint.setTypeface(
                     Typeface.create(
@@ -842,9 +831,9 @@ public class MainActivity extends Activity {
         }
 
         /*
-         * =========================================
+         * =====================================================
          * ICONS
-         * =========================================
+         * =====================================================
          */
 
         private void drawIcon(
@@ -856,10 +845,7 @@ public class MainActivity extends Activity {
         ) {
 
             paint.setShader(null);
-
-            paint.setColor(
-                    Color.WHITE
-            );
+            paint.setColor(Color.WHITE);
 
             paint.setStyle(
                     Paint.Style.STROKE
@@ -873,7 +859,11 @@ public class MainActivity extends Activity {
                     Paint.Cap.ROUND
             );
 
-            if (label.equals("MEIN AUTO")) {
+            if (
+                    label.equals(
+                            "MEIN AUTO"
+                    )
+            ) {
 
                 canvas.drawRoundRect(
                         new RectF(
@@ -902,7 +892,9 @@ public class MainActivity extends Activity {
                 );
 
             } else if (
-                    label.equals("REPARATUREN")
+                    label.equals(
+                            "REPARATUREN"
+                    )
             ) {
 
                 canvas.drawLine(
@@ -921,7 +913,9 @@ public class MainActivity extends Activity {
                 );
 
             } else if (
-                    label.equals("WARTUNGEN")
+                    label.equals(
+                            "WARTUNGEN"
+                    )
             ) {
 
                 canvas.drawRect(
@@ -951,7 +945,9 @@ public class MainActivity extends Activity {
                 );
 
             } else if (
-                    label.equals("KOSTEN")
+                    label.equals(
+                            "KOSTEN"
+                    )
             ) {
 
                 canvas.drawRect(
@@ -981,7 +977,9 @@ public class MainActivity extends Activity {
                 );
 
             } else if (
-                    label.equals("STATISTIK")
+                    label.equals(
+                            "STATISTIK"
+                    )
             ) {
 
                 canvas.drawLine(
@@ -1010,6 +1008,9 @@ public class MainActivity extends Activity {
 
             } else {
 
+                /*
+                 * Einstellungen / Zahnrad
+                 */
                 canvas.drawCircle(
                         cx,
                         cy,
@@ -1031,19 +1032,23 @@ public class MainActivity extends Activity {
 
                     canvas.drawLine(
                             cx +
-                                    (float) Math.cos(angle)
+                                    (float)
+                                            Math.cos(angle)
                                     * size * 0.8f,
 
                             cy +
-                                    (float) Math.sin(angle)
+                                    (float)
+                                            Math.sin(angle)
                                     * size * 0.8f,
 
                             cx +
-                                    (float) Math.cos(angle)
+                                    (float)
+                                            Math.cos(angle)
                                     * size,
 
                             cy +
-                                    (float) Math.sin(angle)
+                                    (float)
+                                            Math.sin(angle)
                                     * size,
 
                             paint
@@ -1057,9 +1062,9 @@ public class MainActivity extends Activity {
         }
 
         /*
-         * =========================================
+         * =====================================================
          * TOUCH
-         * =========================================
+         * =====================================================
          */
 
         @Override
