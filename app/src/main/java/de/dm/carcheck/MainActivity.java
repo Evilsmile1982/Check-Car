@@ -9,9 +9,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Shader;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -41,33 +45,36 @@ public class MainActivity extends Activity {
         private Bitmap background;
         private Bitmap logo;
 
-        private final Paint paint = new Paint(
-                Paint.ANTI_ALIAS_FLAG
-                        | Paint.FILTER_BITMAP_FLAG
-                        | Paint.DITHER_FLAG
-        );
+        private final Paint paint =
+                new Paint(Paint.ANTI_ALIAS_FLAG |
+                        Paint.FILTER_BITMAP_FLAG |
+                        Paint.DITHER_FLAG);
+
+        private final Rect sourceRect = new Rect();
 
         private final String[] labels = {
-                "MEIN AUTO",
-                "REPARATUREN",
-                "WARTUNGEN",
-                "KOSTEN",
-                "STATISTIK",
-                "EINSTELLUNGEN"
+                "Mein Auto",
+                "Reparaturen",
+                "Wartungen",
+                "Kosten",
+                "Statistik",
+                "Einstellungen"
         };
 
         private final String[] subtitles = {
-                "Fahrzeugdaten",
-                "Reparaturhistorie",
-                "Wartungsplan",
-                "Kostenübersicht",
-                "Auswertungen",
-                "App-Einstellungen"
+                "Fahrzeug & Details",
+                "Reparaturen verwalten",
+                "Service & Intervalle",
+                "Ausgaben im Überblick",
+                "Fahrzeugdaten analysieren",
+                "App konfigurieren"
         };
 
-        private final RectF[] hit = new RectF[6];
+        private final RectF[] hit =
+                new RectF[6];
 
-        private final float[] buttonOffset = new float[6];
+        private final float[] buttonOffset =
+                new float[6];
 
         private float logoOffset = -700f;
 
@@ -81,17 +88,10 @@ public class MainActivity extends Activity {
                     R.drawable.home_background
             );
 
-            /*
-             * DAS VON DIR HOCHGELADENE LOGO
-             */
             logo = BitmapFactory.decodeResource(
                     getResources(),
                     R.drawable.auto_check_logo
             );
-
-            paint.setAntiAlias(true);
-            paint.setFilterBitmap(true);
-            paint.setDither(true);
 
             setLayerType(
                     View.LAYER_TYPE_SOFTWARE,
@@ -100,7 +100,7 @@ public class MainActivity extends Activity {
 
             postDelayed(
                     this::startIntro,
-                    200
+                    250
             );
         }
 
@@ -123,21 +123,21 @@ public class MainActivity extends Activity {
             }
 
             /*
-             * Obere Reihe kommt von links.
+             * Obere Reihe von links.
              */
             buttonOffset[0] = -width;
             buttonOffset[1] = -width;
             buttonOffset[2] = -width;
 
             /*
-             * Untere Reihe kommt von rechts.
+             * Untere Reihe von rechts.
              */
             buttonOffset[3] = width;
             buttonOffset[4] = width;
             buttonOffset[5] = width;
 
             /*
-             * Logo fährt von oben herunter.
+             * Logo kommt von oben.
              */
             ObjectAnimator logoAnimation =
                     ObjectAnimator.ofFloat(
@@ -165,7 +165,7 @@ public class MainActivity extends Activity {
                 animation.setDuration(850);
 
                 animation.setStartDelay(
-                        (i % 3) * 80
+                        (i % 3) * 100
                 );
 
                 animations.add(animation);
@@ -191,7 +191,7 @@ public class MainActivity extends Activity {
 
         /*
          * =====================================================
-         * LOGO
+         * LOGO ANIMATION
          * =====================================================
          */
 
@@ -206,7 +206,7 @@ public class MainActivity extends Activity {
 
         /*
          * =====================================================
-         * BUTTON OFFSETS
+         * BUTTON ANIMATION
          * =====================================================
          */
 
@@ -279,12 +279,12 @@ public class MainActivity extends Activity {
             int height = getHeight();
 
             /*
-             * KOMPLETTER HINTERGRUND SCHWARZ
+             * Grundfläche komplett schwarz.
              */
             canvas.drawColor(Color.BLACK);
 
             /*
-             * 1. LOGO
+             * Logo
              */
             drawLogo(
                     canvas,
@@ -293,11 +293,10 @@ public class MainActivity extends Activity {
             );
 
             /*
-             * 2. NUR DER SAUBERE AUTO-BEREICH
+             * Auto-Bild.
              *
-             * WICHTIG:
              * Der Bereich mit den alten Buttons
-             * wird gar nicht erst verwendet.
+             * wird gar nicht erst gezeichnet.
              */
             drawCarImage(
                     canvas,
@@ -306,21 +305,18 @@ public class MainActivity extends Activity {
             );
 
             /*
-             * 3. SCHWARZER BEREICH
-             *
-             * Dieser Bereich beginnt VOR den
-             * alten Hintergrund-Buttons.
+             * Schwarzer Bereich unter dem Auto.
              */
-            drawCleanBlackArea(
+            drawBlackArea(
                     canvas,
                     width,
                     height
             );
 
             /*
-             * 4. NEUE BUTTONS
+             * Neue moderne Karten.
              */
-            drawButtons(
+            drawModernButtons(
                     canvas,
                     width,
                     height
@@ -350,17 +346,8 @@ public class MainActivity extends Activity {
                     logoOffset
             );
 
-            /*
-             * Logo etwas weiter unten.
-             */
-            float top =
-                    height * 0.018f;
-
-            /*
-             * Sehr großes Logo.
-             */
             float logoWidth =
-                    width * 0.965f;
+                    width * 0.97f;
 
             float ratio =
                     (float) logo.getHeight()
@@ -369,10 +356,6 @@ public class MainActivity extends Activity {
             float logoHeight =
                     logoWidth * ratio;
 
-            /*
-             * Begrenzung damit es nicht
-             * mit dem Auto kollidiert.
-             */
             float maxHeight =
                     height * 0.245f;
 
@@ -388,13 +371,8 @@ public class MainActivity extends Activity {
             float left =
                     (width - logoWidth) / 2f;
 
-            Rect source =
-                    new Rect(
-                            0,
-                            0,
-                            logo.getWidth(),
-                            logo.getHeight()
-                    );
+            float top =
+                    height * 0.018f;
 
             RectF destination =
                     new RectF(
@@ -404,13 +382,21 @@ public class MainActivity extends Activity {
                             top + logoHeight
                     );
 
+            sourceRect.set(
+                    0,
+                    0,
+                    logo.getWidth(),
+                    logo.getHeight()
+            );
+
+            paint.setShader(null);
             paint.setAlpha(255);
             paint.setFilterBitmap(true);
             paint.setDither(true);
 
             canvas.drawBitmap(
                     logo,
-                    source,
+                    sourceRect,
                     destination,
                     paint
             );
@@ -441,8 +427,8 @@ public class MainActivity extends Activity {
                     background.getHeight();
 
             /*
-             * OBERER BEREICH DES JPGs WIRD NICHT
-             * VERWENDET, weil dort das alte Logo sitzt.
+             * Der obere alte Logo-Bereich
+             * des JPGs wird nicht verwendet.
              */
             int sourceTop =
                     (int) (
@@ -450,38 +436,26 @@ public class MainActivity extends Activity {
                     );
 
             /*
-             * SEHR WICHTIG:
+             * WICHTIG:
              *
-             * Wir schneiden hier VOR den
-             * alten Buttons ab.
-             *
-             * Die alten Buttons werden somit
-             * überhaupt nicht mehr in das
-             * neue Bild übernommen.
+             * Hier schneiden wir das Bild
+             * VOR den alten Buttons ab.
              */
             int sourceBottom =
                     (int) (
                             imageHeight * 0.620f
                     );
 
-            Rect source =
-                    new Rect(
-                            0,
-                            sourceTop,
-                            imageWidth,
-                            sourceBottom
-                    );
+            sourceRect.set(
+                    0,
+                    sourceTop,
+                    imageWidth,
+                    sourceBottom
+            );
 
-            /*
-             * Auto beginnt unter dem Logo.
-             */
             float destinationTop =
                     height * 0.255f;
 
-            /*
-             * Auto endet deutlich VOR
-             * unseren neuen Buttons.
-             */
             float destinationBottom =
                     height * 0.635f;
 
@@ -493,14 +467,14 @@ public class MainActivity extends Activity {
                             destinationBottom
                     );
 
+            paint.setShader(null);
             paint.setAlpha(255);
             paint.setFilterBitmap(true);
             paint.setDither(true);
-            paint.setAntiAlias(true);
 
             canvas.drawBitmap(
                     background,
-                    source,
+                    sourceRect,
                     destination,
                     paint
             );
@@ -510,14 +484,9 @@ public class MainActivity extends Activity {
          * =====================================================
          * SCHWARZER BEREICH
          * =====================================================
-         *
-         * AB HIER GIBT ES ABSOLUT KEIN BILD MEHR.
-         *
-         * Damit können die alten Buttons aus
-         * dem JPG nicht mehr erscheinen.
          */
 
-        private void drawCleanBlackArea(
+        private void drawBlackArea(
                 Canvas canvas,
                 int width,
                 int height
@@ -526,6 +495,7 @@ public class MainActivity extends Activity {
             float top =
                     height * 0.635f;
 
+            paint.setShader(null);
             paint.setStyle(
                     Paint.Style.FILL
             );
@@ -547,23 +517,26 @@ public class MainActivity extends Activity {
 
         /*
          * =====================================================
-         * BUTTONS
+         * MODERNE BUTTONS
          * =====================================================
          */
 
-        private void drawButtons(
+        private void drawModernButtons(
                 Canvas canvas,
                 int width,
                 int height
         ) {
 
+            /*
+             * Fast komplette Bildschirmbreite.
+             */
             float side =
                     width * 0.018f;
 
             float gap =
                     width * 0.014f;
 
-            float buttonWidth =
+            float cardWidth =
                     (
                             width
                                     - side * 2f
@@ -571,10 +544,10 @@ public class MainActivity extends Activity {
                     ) / 3f;
 
             /*
-             * Große Buttons.
+             * Karten etwas höher als vorher.
              */
-            float buttonHeight =
-                    height * 0.105f;
+            float cardHeight =
+                    height * 0.112f;
 
             /*
              * Erste Reihe.
@@ -586,7 +559,7 @@ public class MainActivity extends Activity {
              * Zweite Reihe.
              */
             float secondY =
-                    height * 0.810f;
+                    height * 0.815f;
 
             for (int i = 0; i < 6; i++) {
 
@@ -599,7 +572,7 @@ public class MainActivity extends Activity {
                 float x =
                         side
                                 + column *
-                                (buttonWidth + gap)
+                                (cardWidth + gap)
                                 + buttonOffset[i];
 
                 float y =
@@ -611,67 +584,81 @@ public class MainActivity extends Activity {
                         new RectF(
                                 x,
                                 y,
-                                x + buttonWidth,
-                                y + buttonHeight
+                                x + cardWidth,
+                                y + cardHeight
                         );
 
-                drawButton(
+                drawModernCard(
                         canvas,
                         x,
                         y,
-                        buttonWidth,
-                        buttonHeight,
-                        labels[i],
-                        i == pressedIndex
+                        cardWidth,
+                        cardHeight,
+                        i,
+                        pressedIndex == i
                 );
             }
         }
 
         /*
          * =====================================================
-         * BUTTON DESIGN
+         * MODERNE KARTE
          * =====================================================
          */
 
-        private void drawButton(
+        private void drawModernCard(
                 Canvas canvas,
                 float x,
                 float y,
                 float width,
                 float height,
-                String label,
+                int index,
                 boolean pressed
         ) {
 
-            boolean red =
-                    label.equals(
-                            "MEIN AUTO"
+            RectF card =
+                    new RectF(
+                            x,
+                            y,
+                            x + width,
+                            y + height
                     );
 
+            /*
+             * Kartenfarbe.
+             */
+            int baseColor =
+                    Color.rgb(
+                            13,
+                            17,
+                            23
+                    );
+
+            int topColor =
+                    Color.rgb(
+                            25,
+                            30,
+                            38
+                    );
+
+            /*
+             * Karte mit leichtem Verlauf.
+             */
             paint.setStyle(
                     Paint.Style.FILL
             );
 
-            if (red) {
-
-                paint.setColor(
-                        Color.rgb(
-                                155,
-                                5,
-                                12
-                        )
-                );
-
-            } else {
-
-                paint.setColor(
-                        Color.rgb(
-                                7,
-                                9,
-                                13
-                        )
-                );
-            }
+            paint.setShader(
+                    new LinearGradient(
+                            x,
+                            y,
+                            x + width,
+                            y + height,
+                            topColor,
+                            baseColor,
+                            Shader.TileMode.CLAMP
+                    )
+            );
 
             paint.setShadowLayer(
                     14,
@@ -681,37 +668,68 @@ public class MainActivity extends Activity {
             );
 
             canvas.drawRoundRect(
-                    new RectF(
-                            x,
-                            y,
-                            x + width,
-                            y + height
-                    ),
+                    card,
                     18,
                     18,
                     paint
             );
 
             paint.clearShadowLayer();
+            paint.setShader(null);
 
             /*
-             * Rahmen
+             * MEIN AUTO bekommt rote Karte.
+             */
+            if (index == 0) {
+
+                paint.setShader(
+                        new LinearGradient(
+                                x,
+                                y,
+                                x + width,
+                                y + height,
+                                Color.rgb(
+                                        110,
+                                        8,
+                                        14
+                                ),
+                                Color.rgb(
+                                        55,
+                                        5,
+                                        9
+                                ),
+                                Shader.TileMode.CLAMP
+                        )
+                );
+
+                canvas.drawRoundRect(
+                        card,
+                        18,
+                        18,
+                        paint
+                );
+
+                paint.setShader(null);
+            }
+
+            /*
+             * Rahmen.
              */
             paint.setStyle(
                     Paint.Style.STROKE
             );
 
             paint.setStrokeWidth(
-                    pressed ? 5f : 2.5f
+                    pressed ? 4f : 2f
             );
 
-            if (red) {
+            if (index == 0) {
 
                 paint.setColor(
                         Color.rgb(
                                 255,
                                 45,
-                                45
+                                55
                         )
                 );
 
@@ -719,9 +737,9 @@ public class MainActivity extends Activity {
 
                 paint.setColor(
                         Color.rgb(
-                                105,
-                                110,
-                                120
+                                65,
+                                73,
+                                85
                         )
                 );
             }
@@ -743,24 +761,573 @@ public class MainActivity extends Activity {
             );
 
             /*
-             * Icon
+             * =================================================
+             * ICON-KREIS
+             * =================================================
              */
-            drawIcon(
+
+            float iconCenterX =
+                    x + width * 0.275f;
+
+            float iconCenterY =
+                    y + height * 0.38f;
+
+            float iconRadius =
+                    height * 0.235f;
+
+            drawIconCircle(
                     canvas,
-                    x + width / 2f,
-                    y + height * 0.34f,
-                    width * 0.125f,
-                    label
+                    iconCenterX,
+                    iconCenterY,
+                    iconRadius,
+                    index
             );
 
             /*
-             * Text
+             * =================================================
+             * TITEL
+             * =================================================
              */
+
+            paint.setShader(null);
+
+            paint.setColor(
+                    Color.WHITE
+            );
+
             paint.setTypeface(
-                    android.graphics.Typeface.create(
+                    Typeface.create(
                             "sans-serif",
-                            android.graphics.Typeface.BOLD
+                            Typeface.BOLD
                     )
+            );
+
+            paint.setTextAlign(
+                    Paint.Align.LEFT
+            );
+
+            paint.setTextSize(
+                    Math.min(
+                            width * 0.075f,
+                            26f
+                    )
+            );
+
+            canvas.drawText(
+                    labels[index],
+                    x + width * 0.12f,
+                    y + height * 0.70f,
+                    paint
+            );
+
+            /*
+             * =================================================
+             * UNTERTITEL
+             * =================================================
+             */
+
+            paint.setTypeface(
+                    Typeface.create(
+                            "sans-serif",
+                            Typeface.NORMAL
+                    )
+            );
+
+            paint.setColor(
+                    Color.rgb(
+                            155,
+                            165,
+                            180
+                    )
+            );
+
+            paint.setTextSize(
+                    Math.min(
+                            width * 0.047f,
+                            17f
+                    )
+            );
+
+            canvas.drawText(
+                    subtitles[index],
+                    x + width * 0.12f,
+                    y + height * 0.87f,
+                    paint
+            );
+
+            /*
+             * =================================================
+             * PFEILKREIS
+             * =================================================
+             */
+
+            float arrowX =
+                    x + width * 0.88f;
+
+            float arrowY =
+                    y + height * 0.57f;
+
+            float arrowRadius =
+                    height * 0.135f;
+
+            drawArrowButton(
+                    canvas,
+                    arrowX,
+                    arrowY,
+                    arrowRadius,
+                    index
+            );
+        }
+
+        /*
+         * =====================================================
+         * ICON-KREIS
+         * =====================================================
+         */
+
+        private void drawIconCircle(
+                Canvas canvas,
+                float cx,
+                float cy,
+                float radius,
+                int index
+        ) {
+
+            int color =
+                    getAccentColor(index);
+
+            /*
+             * Äußerer Kreis.
+             */
+            paint.setStyle(
+                    Paint.Style.FILL
+            );
+
+            paint.setColor(
+                    Color.argb(
+                            45,
+                            Color.red(color),
+                            Color.green(color),
+                            Color.blue(color)
+                    )
+            );
+
+            canvas.drawCircle(
+                    cx,
+                    cy,
+                    radius,
+                    paint
+            );
+
+            /*
+             * Kreisrand.
+             */
+            paint.setStyle(
+                    Paint.Style.STROKE
+            );
+
+            paint.setStrokeWidth(
+                    1.5f
+            );
+
+            paint.setColor(
+                    Color.argb(
+                            150,
+                            Color.red(color),
+                            Color.green(color),
+                            Color.blue(color)
+                    )
+            );
+
+            canvas.drawCircle(
+                    cx,
+                    cy,
+                    radius,
+                    paint
+            );
+
+            /*
+             * Icon.
+             */
+            paint.setColor(
+                    color
+            );
+
+            paint.setStrokeWidth(
+                    4f
+            );
+
+            paint.setStrokeCap(
+                    Paint.Cap.ROUND
+            );
+
+            paint.setStyle(
+                    Paint.Style.STROKE
+            );
+
+            float s =
+                    radius * 0.48f;
+
+            if (index == 0) {
+
+                drawCarIcon(
+                        canvas,
+                        cx,
+                        cy,
+                        s
+                );
+
+            } else if (index == 1) {
+
+                drawWrenchIcon(
+                        canvas,
+                        cx,
+                        cy,
+                        s
+                );
+
+            } else if (index == 2) {
+
+                drawCalendarIcon(
+                        canvas,
+                        cx,
+                        cy,
+                        s
+                );
+
+            } else if (index == 3) {
+
+                drawMoneyIcon(
+                        canvas,
+                        cx,
+                        cy,
+                        s
+                );
+
+            } else if (index == 4) {
+
+                drawStatisticsIcon(
+                        canvas,
+                        cx,
+                        cy,
+                        s
+                );
+
+            } else {
+
+                drawGearIcon(
+                        canvas,
+                        cx,
+                        cy,
+                        s
+                );
+            }
+
+            paint.setStyle(
+                    Paint.Style.FILL
+            );
+        }
+
+        /*
+         * =====================================================
+         * AKZENTFARBEN
+         * =====================================================
+         */
+
+        private int getAccentColor(
+                int index
+        ) {
+
+            switch (index) {
+
+                case 0:
+                    return Color.rgb(
+                            255,
+                            70,
+                            80
+                    );
+
+                case 1:
+                    return Color.rgb(
+                            0,
+                            150,
+                            255
+                    );
+
+                case 2:
+                    return Color.rgb(
+                            255,
+                            190,
+                            45
+                    );
+
+                case 3:
+                    return Color.rgb(
+                            65,
+                            230,
+                            145
+                    );
+
+                case 4:
+                    return Color.rgb(
+                            175,
+                            70,
+                            255
+                    );
+
+                default:
+                    return Color.rgb(
+                            225,
+                            230,
+                            238
+                    );
+            }
+        }
+
+        /*
+         * =====================================================
+         * AUTO ICON
+         * =====================================================
+         */
+
+        private void drawCarIcon(
+                Canvas canvas,
+                float cx,
+                float cy,
+                float s
+        ) {
+
+            RectF body =
+                    new RectF(
+                            cx - s,
+                            cy - s * 0.25f,
+                            cx + s,
+                            cy + s * 0.40f
+                    );
+
+            canvas.drawRoundRect(
+                    body,
+                    s * 0.18f,
+                    s * 0.18f,
+                    paint
+            );
+
+            Path roof =
+                    new Path();
+
+            roof.moveTo(
+                    cx - s * 0.68f,
+                    cy - s * 0.25f
+            );
+
+            roof.lineTo(
+                    cx - s * 0.42f,
+                    cy - s * 0.72f
+            );
+
+            roof.lineTo(
+                    cx + s * 0.42f,
+                    cy - s * 0.72f
+            );
+
+            roof.lineTo(
+                    cx + s * 0.68f,
+                    cy - s * 0.25f
+            );
+
+            canvas.drawPath(
+                    roof,
+                    paint
+            );
+
+            canvas.drawCircle(
+                    cx - s * 0.58f,
+                    cy + s * 0.43f,
+                    s * 0.16f,
+                    paint
+            );
+
+            canvas.drawCircle(
+                    cx + s * 0.58f,
+                    cy + s * 0.43f,
+                    s * 0.16f,
+                    paint
+            );
+        }
+
+        /*
+         * =====================================================
+         * WERKZEUG ICON
+         * =====================================================
+         */
+
+        private void drawWrenchIcon(
+                Canvas canvas,
+                float cx,
+                float cy,
+                float s
+        ) {
+
+            canvas.drawLine(
+                    cx - s * 0.55f,
+                    cy + s * 0.55f,
+                    cx + s * 0.45f,
+                    cy - s * 0.45f,
+                    paint
+            );
+
+            canvas.drawCircle(
+                    cx - s * 0.55f,
+                    cy + s * 0.55f,
+                    s * 0.20f,
+                    paint
+            );
+
+            Path wrench =
+                    new Path();
+
+            wrench.moveTo(
+                    cx + s * 0.25f,
+                    cy - s * 0.45f
+            );
+
+            wrench.lineTo(
+                    cx + s * 0.48f,
+                    cy - s * 0.70f
+            );
+
+            wrench.lineTo(
+                    cx + s * 0.72f,
+                    cy - s * 0.50f
+            );
+
+            wrench.lineTo(
+                    cx + s * 0.48f,
+                    cy - s * 0.30f
+            );
+
+            canvas.drawPath(
+                    wrench,
+                    paint
+            );
+        }
+
+        /*
+         * =====================================================
+         * KALENDER
+         * =====================================================
+         */
+
+        private void drawCalendarIcon(
+                Canvas canvas,
+                float cx,
+                float cy,
+                float s
+        ) {
+
+            RectF calendar =
+                    new RectF(
+                            cx - s * 0.78f,
+                            cy - s * 0.65f,
+                            cx + s * 0.78f,
+                            cy + s * 0.70f
+                    );
+
+            canvas.drawRoundRect(
+                    calendar,
+                    s * 0.15f,
+                    s * 0.15f,
+                    paint
+            );
+
+            canvas.drawLine(
+                    cx - s * 0.78f,
+                    cy - s * 0.25f,
+                    cx + s * 0.78f,
+                    cy - s * 0.25f,
+                    paint
+            );
+
+            canvas.drawLine(
+                    cx - s * 0.40f,
+                    cy - s * 0.88f,
+                    cx - s * 0.40f,
+                    cy - s * 0.45f,
+                    paint
+            );
+
+            canvas.drawLine(
+                    cx + s * 0.40f,
+                    cy - s * 0.88f,
+                    cx + s * 0.40f,
+                    cy - s * 0.45f,
+                    paint
+            );
+
+            paint.setStyle(
+                    Paint.Style.FILL
+            );
+
+            for (int row = 0; row < 2; row++) {
+
+                for (int col = 0; col < 3; col++) {
+
+                    canvas.drawCircle(
+                            cx - s * 0.40f
+                                    + col * s * 0.40f,
+
+                            cy + s * 0.05f
+                                    + row * s * 0.32f,
+
+                            s * 0.055f,
+
+                            paint
+                    );
+                }
+            }
+
+            paint.setStyle(
+                    Paint.Style.STROKE
+            );
+        }
+
+        /*
+         * =====================================================
+         * GELD ICON
+         * =====================================================
+         */
+
+        private void drawMoneyIcon(
+                Canvas canvas,
+                float cx,
+                float cy,
+                float s
+        ) {
+
+            for (int i = 0; i < 3; i++) {
+
+                canvas.drawOval(
+                        new RectF(
+                                cx - s * 0.72f,
+                                cy - s * 0.45f
+                                        + i * s * 0.35f,
+                                cx + s * 0.25f,
+                                cy - s * 0.10f
+                                        + i * s * 0.35f
+                        ),
+                        paint
+                );
+            }
+
+            canvas.drawCircle(
+                    cx + s * 0.48f,
+                    cy + s * 0.28f,
+                    s * 0.38f,
+                    paint
+            );
+
+            paint.setStyle(
+                    Paint.Style.FILL
             );
 
             paint.setTextAlign(
@@ -768,219 +1335,249 @@ public class MainActivity extends Activity {
             );
 
             paint.setTextSize(
-                    Math.min(
-                            width * 0.078f,
-                            27f
-                    )
+                    s * 0.55f
             );
 
-            paint.setColor(
-                    Color.WHITE
+            paint.setTypeface(
+                    Typeface.DEFAULT_BOLD
             );
 
             canvas.drawText(
-                    label,
-                    x + width / 2f,
-                    y + height * 0.82f,
+                    "€",
+                    cx + s * 0.48f,
+                    cy + s * 0.48f,
+                    paint
+            );
+
+            paint.setStyle(
+                    Paint.Style.STROKE
+            );
+        }
+
+        /*
+         * =====================================================
+         * STATISTIK ICON
+         * =====================================================
+         */
+
+        private void drawStatisticsIcon(
+                Canvas canvas,
+                float cx,
+                float cy,
+                float s
+        ) {
+
+            paint.setStrokeWidth(
+                    5f
+            );
+
+            canvas.drawRoundRect(
+                    new RectF(
+                            cx - s * 0.72f,
+                            cy + s * 0.05f,
+                            cx - s * 0.35f,
+                            cy + s * 0.70f
+                    ),
+                    5,
+                    5,
+                    paint
+            );
+
+            canvas.drawRoundRect(
+                    new RectF(
+                            cx - s * 0.15f,
+                            cy - s * 0.30f,
+                            cx + s * 0.22f,
+                            cy + s * 0.70f
+                    ),
+                    5,
+                    5,
+                    paint
+            );
+
+            canvas.drawRoundRect(
+                    new RectF(
+                            cx + s * 0.42f,
+                            cy - s * 0.70f,
+                            cx + s * 0.79f,
+                            cy + s * 0.70f
+                    ),
+                    5,
+                    5,
                     paint
             );
         }
 
         /*
          * =====================================================
-         * ICONS
+         * EINSTELLUNGEN ICON
          * =====================================================
          */
 
-        private void drawIcon(
+        private void drawGearIcon(
                 Canvas canvas,
                 float cx,
                 float cy,
-                float size,
-                String label
+                float s
         ) {
 
-            paint.setColor(
-                    Color.WHITE
+            canvas.drawCircle(
+                    cx,
+                    cy,
+                    s * 0.60f,
+                    paint
             );
 
+            canvas.drawCircle(
+                    cx,
+                    cy,
+                    s * 0.23f,
+                    paint
+            );
+
+            for (int i = 0; i < 8; i++) {
+
+                double angle =
+                        i * Math.PI / 4.0;
+
+                float x1 =
+                        cx
+                                + (float)
+                                Math.cos(angle)
+                                * s * 0.72f;
+
+                float y1 =
+                        cy
+                                + (float)
+                                Math.sin(angle)
+                                * s * 0.72f;
+
+                float x2 =
+                        cx
+                                + (float)
+                                Math.cos(angle)
+                                * s * 0.95f;
+
+                float y2 =
+                        cy
+                                + (float)
+                                Math.sin(angle)
+                                * s * 0.95f;
+
+                canvas.drawLine(
+                        x1,
+                        y1,
+                        x2,
+                        y2,
+                        paint
+                );
+            }
+        }
+
+        /*
+         * =====================================================
+         * PFEIL
+         * =====================================================
+         */
+
+        private void drawArrowButton(
+                Canvas canvas,
+                float cx,
+                float cy,
+                float radius,
+                int index
+        ) {
+
+            int accent =
+                    getAccentColor(index);
+
+            /*
+             * Kreis.
+             */
+            paint.setStyle(
+                    Paint.Style.FILL
+            );
+
+            paint.setColor(
+                    Color.argb(
+                            45,
+                            Color.red(accent),
+                            Color.green(accent),
+                            Color.blue(accent)
+                    )
+            );
+
+            canvas.drawCircle(
+                    cx,
+                    cy,
+                    radius,
+                    paint
+            );
+
+            /*
+             * Kreisrand.
+             */
             paint.setStyle(
                     Paint.Style.STROKE
             );
 
             paint.setStrokeWidth(
-                    4.2f
+                    1.5f
+            );
+
+            paint.setColor(
+                    Color.rgb(
+                            55,
+                            65,
+                            78
+                    )
+            );
+
+            canvas.drawCircle(
+                    cx,
+                    cy,
+                    radius,
+                    paint
+            );
+
+            /*
+             * Pfeil.
+             */
+            paint.setColor(
+                    Color.WHITE
+            );
+
+            paint.setStrokeWidth(
+                    3.5f
             );
 
             paint.setStrokeCap(
                     Paint.Cap.ROUND
             );
 
-            if (label.equals("MEIN AUTO")) {
+            canvas.drawLine(
+                    cx - radius * 0.25f,
+                    cy,
+                    cx + radius * 0.25f,
+                    cy,
+                    paint
+            );
 
-                canvas.drawRoundRect(
-                        new RectF(
-                                cx - size,
-                                cy - size * 0.45f,
-                                cx + size,
-                                cy + size * 0.45f
-                        ),
-                        size * 0.18f,
-                        size * 0.18f,
-                        paint
-                );
+            canvas.drawLine(
+                    cx + radius * 0.25f,
+                    cy,
+                    cx,
+                    cy - radius * 0.27f,
+                    paint
+            );
 
-                canvas.drawCircle(
-                        cx - size * 0.55f,
-                        cy + size * 0.45f,
-                        size * 0.16f,
-                        paint
-                );
-
-                canvas.drawCircle(
-                        cx + size * 0.55f,
-                        cy + size * 0.45f,
-                        size * 0.16f,
-                        paint
-                );
-
-            } else if (label.equals("REPARATUREN")) {
-
-                canvas.drawLine(
-                        cx - size,
-                        cy + size * 0.65f,
-                        cx + size,
-                        cy - size * 0.65f,
-                        paint
-                );
-
-                canvas.drawCircle(
-                        cx - size * 0.55f,
-                        cy + size * 0.45f,
-                        size * 0.18f,
-                        paint
-                );
-
-            } else if (label.equals("WARTUNGEN")) {
-
-                canvas.drawRect(
-                        new RectF(
-                                cx - size * 0.75f,
-                                cy - size * 0.8f,
-                                cx + size * 0.75f,
-                                cy + size * 0.8f
-                        ),
-                        paint
-                );
-
-                canvas.drawLine(
-                        cx - size * 0.45f,
-                        cy - size * 0.2f,
-                        cx + size * 0.45f,
-                        cy - size * 0.2f,
-                        paint
-                );
-
-                canvas.drawLine(
-                        cx - size * 0.45f,
-                        cy + size * 0.2f,
-                        cx + size * 0.45f,
-                        cy + size * 0.2f,
-                        paint
-                );
-
-            } else if (label.equals("KOSTEN")) {
-
-                canvas.drawRect(
-                        new RectF(
-                                cx - size * 0.65f,
-                                cy - size * 0.8f,
-                                cx + size * 0.65f,
-                                cy + size * 0.8f
-                        ),
-                        paint
-                );
-
-                canvas.drawLine(
-                        cx - size * 0.35f,
-                        cy - size * 0.25f,
-                        cx + size * 0.35f,
-                        cy - size * 0.25f,
-                        paint
-                );
-
-                canvas.drawLine(
-                        cx - size * 0.35f,
-                        cy + size * 0.1f,
-                        cx + size * 0.35f,
-                        cy + size * 0.1f,
-                        paint
-                );
-
-            } else if (label.equals("STATISTIK")) {
-
-                canvas.drawLine(
-                        cx - size * 0.7f,
-                        cy + size * 0.7f,
-                        cx - size * 0.7f,
-                        cy + size * 0.15f,
-                        paint
-                );
-
-                canvas.drawLine(
-                        cx,
-                        cy + size * 0.7f,
-                        cx,
-                        cy - size * 0.35f,
-                        paint
-                );
-
-                canvas.drawLine(
-                        cx + size * 0.7f,
-                        cy + size * 0.7f,
-                        cx + size * 0.7f,
-                        cy - size * 0.75f,
-                        paint
-                );
-
-            } else {
-
-                canvas.drawCircle(
-                        cx,
-                        cy,
-                        size * 0.72f,
-                        paint
-                );
-
-                canvas.drawCircle(
-                        cx,
-                        cy,
-                        size * 0.25f,
-                        paint
-                );
-
-                for (int i = 0; i < 8; i++) {
-
-                    double angle =
-                            i * Math.PI / 4;
-
-                    canvas.drawLine(
-                            cx + (float) Math.cos(angle)
-                                    * size * 0.8f,
-
-                            cy + (float) Math.sin(angle)
-                                    * size * 0.8f,
-
-                            cx + (float) Math.cos(angle)
-                                    * size,
-
-                            cy + (float) Math.sin(angle)
-                                    * size,
-
-                            paint
-                    );
-                }
-            }
+            canvas.drawLine(
+                    cx + radius * 0.25f,
+                    cy,
+                    cx,
+                    cy + radius * 0.27f,
+                    paint
+            );
 
             paint.setStyle(
                     Paint.Style.FILL
