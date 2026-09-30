@@ -1,6 +1,5 @@
 package de.dm.carcheck;
 
-import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
@@ -18,8 +17,8 @@ public class MainActivity extends Activity {
     AutoCheckView view;
 
     @Override
-    public void onCreate(Bundle b) {
-        super.onCreate(b);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         getWindow().setFlags(
                 WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -32,12 +31,13 @@ public class MainActivity extends Activity {
 
     class AutoCheckView extends View {
 
-        Bitmap bg;
+        Bitmap background;
+        Bitmap logo;
 
-        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
-        Rect src = new Rect();
-        RectF dst = new RectF();
+        Rect source = new Rect();
+        RectF destination = new RectF();
 
         String[] labels = {
                 "MEIN AUTO",
@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
                 "EINSTELLUNGEN"
         };
 
-        String[] subTitles = {
+        String[] subtitles = {
                 "Fahrzeugdaten",
                 "Reparaturhistorie",
                 "Wartungsplan",
@@ -57,26 +57,35 @@ public class MainActivity extends Activity {
                 "App-Einstellungen"
         };
 
-        RectF[] hit = new RectF[6];
+        RectF[] buttons = new RectF[6];
 
         /*
-         * Logo fährt von oben herein.
+         * Logo startet komplett oberhalb
+         * des Bildschirms.
          */
-        float headerOffset = -430f;
+        float logoY = -500f;
 
         /*
          * Button-Animationen.
          */
-        float[] buttonOffset = new float[6];
+        float[] buttonX = new float[6];
 
-        int pressedIndex = -1;
+        int pressedButton = -1;
 
         AutoCheckView() {
             super(MainActivity.this);
 
-            bg = BitmapFactory.decodeResource(
+            background = BitmapFactory.decodeResource(
                     getResources(),
                     R.drawable.home_background
+            );
+
+            /*
+             * DAS ECHTE LOGO AUS DEINEM BILD 2
+             */
+            logo = BitmapFactory.decodeResource(
+                    getResources(),
+                    R.drawable.auto_check_logo
             );
 
             setLayerType(
@@ -84,444 +93,317 @@ public class MainActivity extends Activity {
                     null
             );
 
-            for (int i = 0; i < 6; i++) {
-                buttonOffset[i] = 0;
-            }
-
-            post(this::startIntro);
+            postDelayed(
+                    this::startAnimation,
+                    250
+            );
         }
 
         /*
-         * ------------------------------------------------
+         * ==========================================
          * STARTANIMATION
-         * ------------------------------------------------
+         * ==========================================
          */
-        void startIntro() {
+        void startAnimation() {
 
-            float w = getWidth();
+            float width = getWidth();
 
-            if (w <= 0) {
+            if (width <= 0) {
                 postDelayed(
-                        this::startIntro,
-                        50
+                        this::startAnimation,
+                        100
                 );
                 return;
             }
 
             /*
-             * Obere Reihe kommt von LINKS.
+             * OBERE REIHE:
+             * kommt von links.
              */
-            for (int i = 0; i < 3; i++) {
-                buttonOffset[i] = -w;
-            }
+            buttonX[0] = -width;
+            buttonX[1] = -width;
+            buttonX[2] = -width;
 
             /*
-             * Untere Reihe kommt von RECHTS.
+             * UNTERE REIHE:
+             * kommt von rechts.
              */
-            for (int i = 3; i < 6; i++) {
-                buttonOffset[i] = w;
-            }
+            buttonX[3] = width;
+            buttonX[4] = width;
+            buttonX[5] = width;
 
             /*
-             * LOGO:
-             * komplett von oben herein.
+             * LOGO FÄHRT VON OBEN EIN.
              */
-            ObjectAnimator header =
+            ObjectAnimator logoAnimation =
                     ObjectAnimator.ofFloat(
                             this,
-                            "headerOffset",
-                            -430f,
+                            "logoY",
+                            -500f,
                             0f
                     );
 
-            header.setDuration(1800);
+            logoAnimation.setDuration(1800);
 
             /*
              * BUTTONS.
              */
-            AnimatorSet buttons =
-                    new AnimatorSet();
-
-            ArrayList<Animator> list =
+            ArrayList<android.animation.Animator> list =
                     new ArrayList<>();
 
             for (int i = 0; i < 6; i++) {
 
-                final int idx = i;
-
-                ObjectAnimator a =
+                ObjectAnimator animation =
                         ObjectAnimator.ofFloat(
                                 this,
-                                "buttonOffset" + idx,
-                                buttonOffset[i],
+                                "buttonX" + i,
+                                buttonX[i],
                                 0f
                         );
 
-                a.setDuration(1500);
+                animation.setDuration(1300);
 
-                /*
-                 * Leichte Staffelung.
-                 */
-                a.setStartDelay(
+                animation.setStartDelay(
                         (i % 3) * 120
                 );
 
-                list.add(a);
+                list.add(animation);
             }
 
-            buttons.playTogether(list);
+            AnimatorSet buttonSet =
+                    new AnimatorSet();
+
+            buttonSet.playTogether(list);
 
             /*
-             * Logo und Buttons gleichzeitig.
+             * Logo + Buttons gemeinsam.
              */
             AnimatorSet all =
                     new AnimatorSet();
 
             all.playTogether(
-                    header,
-                    buttons
+                    logoAnimation,
+                    buttonSet
             );
 
             all.start();
         }
 
         /*
-         * ------------------------------------------------
-         * ANIMATION PROPERTY LOGO
-         * ------------------------------------------------
+         * ==========================================
+         * LOGO
+         * ==========================================
          */
-        public void setHeaderOffset(float value) {
-            headerOffset = value;
+        public void setLogoY(float value) {
+            logoY = value;
             invalidate();
         }
 
-        public float getHeaderOffset() {
-            return headerOffset;
+        public float getLogoY() {
+            return logoY;
         }
 
         /*
-         * ------------------------------------------------
-         * ANIMATION PROPERTY BUTTONS
-         * ------------------------------------------------
+         * ==========================================
+         * BUTTON PROPERTIES
+         * ==========================================
          */
-
-        public void setButtonOffset0(float value) {
-            buttonOffset[0] = value;
+        public void setButtonX0(float value) {
+            buttonX[0] = value;
             invalidate();
         }
 
-        public float getButtonOffset0() {
-            return buttonOffset[0];
+        public float getButtonX0() {
+            return buttonX[0];
         }
 
-        public void setButtonOffset1(float value) {
-            buttonOffset[1] = value;
+        public void setButtonX1(float value) {
+            buttonX[1] = value;
             invalidate();
         }
 
-        public float getButtonOffset1() {
-            return buttonOffset[1];
+        public float getButtonX1() {
+            return buttonX[1];
         }
 
-        public void setButtonOffset2(float value) {
-            buttonOffset[2] = value;
+        public void setButtonX2(float value) {
+            buttonX[2] = value;
             invalidate();
         }
 
-        public float getButtonOffset2() {
-            return buttonOffset[2];
+        public float getButtonX2() {
+            return buttonX[2];
         }
 
-        public void setButtonOffset3(float value) {
-            buttonOffset[3] = value;
+        public void setButtonX3(float value) {
+            buttonX[3] = value;
             invalidate();
         }
 
-        public float getButtonOffset3() {
-            return buttonOffset[3];
+        public float getButtonX3() {
+            return buttonX[3];
         }
 
-        public void setButtonOffset4(float value) {
-            buttonOffset[4] = value;
+        public void setButtonX4(float value) {
+            buttonX[4] = value;
             invalidate();
         }
 
-        public float getButtonOffset4() {
-            return buttonOffset[4];
+        public float getButtonX4() {
+            return buttonX[4];
         }
 
-        public void setButtonOffset5(float value) {
-            buttonOffset[5] = value;
+        public void setButtonX5(float value) {
+            buttonX[5] = value;
             invalidate();
         }
 
-        public float getButtonOffset5() {
-            return buttonOffset[5];
+        public float getButtonX5() {
+            return buttonX[5];
         }
 
         /*
-         * ------------------------------------------------
+         * ==========================================
          * ZEICHNEN
-         * ------------------------------------------------
+         * ==========================================
          */
         @Override
-        protected void onDraw(Canvas c) {
+        protected void onDraw(Canvas canvas) {
 
-            super.onDraw(c);
+            super.onDraw(canvas);
 
-            int w = getWidth();
-            int h = getHeight();
+            int width = getWidth();
+            int height = getHeight();
 
             /*
-             * Hintergrundbild auf Bildschirmgröße skalieren.
+             * Hintergrundbild.
              */
-            src.set(
+            source.set(
                     0,
                     0,
-                    bg.getWidth(),
-                    bg.getHeight()
+                    background.getWidth(),
+                    background.getHeight()
             );
 
-            float scale =
-                    Math.max(
-                            (float) w / bg.getWidth(),
-                            (float) h / bg.getHeight()
-                    );
-
-            float bw =
-                    bg.getWidth() * scale;
-
-            float bh =
-                    bg.getHeight() * scale;
-
-            dst.set(
-                    (w - bw) / 2f,
-                    (h - bh) / 2f,
-                    (w + bw) / 2f,
-                    (h + bh) / 2f
+            float scale = Math.max(
+                    (float) width / background.getWidth(),
+                    (float) height / background.getHeight()
             );
 
-            c.drawBitmap(
-                    bg,
-                    src,
-                    dst,
-                    p
+            float bgWidth =
+                    background.getWidth() * scale;
+
+            float bgHeight =
+                    background.getHeight() * scale;
+
+            destination.set(
+                    (width - bgWidth) / 2f,
+                    (height - bgHeight) / 2f,
+                    (width + bgWidth) / 2f,
+                    (height + bgHeight) / 2f
+            );
+
+            canvas.drawBitmap(
+                    background,
+                    source,
+                    destination,
+                    paint
             );
 
             /*
-             * Altes Logo und alte Buttons verdecken.
+             * Alten Logo-Bereich komplett
+             * abdecken.
              */
-            coverOldElements(
-                    c,
-                    w,
-                    h
+            paint.setStyle(Paint.Style.FILL);
+            paint.setShader(null);
+            paint.setColor(Color.rgb(1, 2, 4));
+
+            canvas.drawRect(
+                    0,
+                    0,
+                    width,
+                    height * 0.39f,
+                    paint
             );
 
             /*
-             * Neues Logo.
+             * Echtes Logo zeichnen.
              */
-            drawHeader(
-                    c,
-                    w
+            drawLogo(
+                    canvas,
+                    width,
+                    height
             );
 
             /*
-             * Neue Buttons.
+             * Buttons.
              */
             drawButtons(
-                    c,
-                    w,
-                    h
+                    canvas,
+                    width,
+                    height
             );
         }
 
         /*
-         * ------------------------------------------------
-         * ALTE ELEMENTE ABDECKEN
-         * ------------------------------------------------
+         * ==========================================
+         * LOGO ZEICHNEN
+         * ==========================================
          */
-        void coverOldElements(
-                Canvas c,
-                int w,
-                int h
+        void drawLogo(
+                Canvas canvas,
+                int width,
+                int height
         ) {
 
-            /*
-             * Oberen Bereich abdunkeln.
-             *
-             * Das alte Logo befindet sich dort.
-             */
-            LinearGradient top =
-                    new LinearGradient(
-                            0,
-                            0,
-                            0,
-                            h * 0.33f,
-                            new int[]{
-                                    Color.rgb(
-                                            2,
-                                            3,
-                                            5
-                                    ),
-                                    Color.rgb(
-                                            4,
-                                            5,
-                                            7
-                                    ),
-                                    Color.argb(
-                                            230,
-                                            4,
-                                            5,
-                                            7
-                                    )
-                            },
-                            null,
-                            Shader.TileMode.CLAMP
-                    );
-
-            p.setShader(top);
-
-            c.drawRect(
-                    0,
-                    0,
-                    w,
-                    h * 0.33f,
-                    p
-            );
-
-            p.setShader(null);
-
-            /*
-             * Unteren Bereich abdunkeln.
-             *
-             * Dadurch verschwinden die alten
-             * eingebauten Buttons aus dem JPG.
-             */
-            LinearGradient bottom =
-                    new LinearGradient(
-                            0,
-                            h * 0.64f,
-                            0,
-                            h,
-                            new int[]{
-                                    Color.argb(
-                                            20,
-                                            0,
-                                            0,
-                                            0
-                                    ),
-                                    Color.rgb(
-                                            4,
-                                            5,
-                                            8
-                                    ),
-                                    Color.rgb(
-                                            2,
-                                            3,
-                                            5
-                                    )
-                            },
-                            null,
-                            Shader.TileMode.CLAMP
-                    );
-
-            p.setShader(bottom);
-
-            c.drawRect(
-                    0,
-                    h * 0.64f,
-                    w,
-                    h,
-                    p
-            );
-
-            p.setShader(null);
-        }
-
-        /*
-         * ------------------------------------------------
-         * LOGO
-         * ------------------------------------------------
-         *
-         * Hier wird KEIN neues AUTO-CHECK-Logo gezeichnet.
-         *
-         * Stattdessen wird der echte Logo-Bereich
-         * aus home_background.jpg ausgeschnitten.
-         *
-         * Dadurch entspricht die Optik deinem Bild 2.
-         */
-        void drawHeader(
-                Canvas c,
-                int w
-        ) {
-
-            c.save();
-
-            /*
-             * Logo fährt von oben herein.
-             */
-            c.translate(
-                    0,
-                    headerOffset
-            );
-
-            /*
-             * Breite des Logos.
-             */
-            float logoWidth =
-                    w * 0.98f;
-
-            /*
-             * Nicht übermäßig groß werden.
-             */
-            if (logoWidth > 900f) {
-                logoWidth = 900f;
+            if (logo == null) {
+                return;
             }
 
-            /*
-             * Der obere Bereich des Originalbildes
-             * ist 848 x 430 Pixel.
-             */
-            float sourceWidth =
-                    848f;
+            canvas.save();
 
-            float sourceHeight =
-                    430f;
+            canvas.translate(
+                    0,
+                    logoY
+            );
 
             /*
-             * Seitenverhältnis beibehalten.
+             * Logo fast über die gesamte
+             * Bildschirmbreite.
              */
+            float logoWidth =
+                    width * 0.99f;
+
+            float ratio =
+                    (float) logo.getHeight()
+                            / (float) logo.getWidth();
+
             float logoHeight =
-                    logoWidth *
-                    sourceHeight /
-                    sourceWidth;
+                    logoWidth * ratio;
+
+            /*
+             * Nicht zu klein machen.
+             */
+            if (logoHeight > height * 0.39f) {
+
+                logoHeight =
+                        height * 0.39f;
+
+                logoWidth =
+                        logoHeight / ratio;
+            }
 
             float left =
-                    (w - logoWidth) / 2f;
+                    (width - logoWidth) / 2f;
 
-            /*
-             * Logo-Quelle.
-             *
-             * Das komplette obere Logo aus dem
-             * Originalbild.
-             */
             Rect logoSource =
                     new Rect(
                             0,
                             0,
-                            Math.min(
-                                    848,
-                                    bg.getWidth()
-                            ),
-                            Math.min(
-                                    430,
-                                    bg.getHeight()
-                            )
+                            logo.getWidth(),
+                            logo.getHeight()
                     );
 
-            /*
-             * Zielbereich.
-             */
             RectF logoDestination =
                     new RectF(
                             left,
@@ -530,82 +412,65 @@ public class MainActivity extends Activity {
                             logoHeight
                     );
 
-            p.setAlpha(255);
+            paint.setAlpha(255);
 
-            /*
-             * Das Original-Logo zeichnen.
-             */
-            c.drawBitmap(
-                    bg,
+            canvas.drawBitmap(
+                    logo,
                     logoSource,
                     logoDestination,
-                    p
+                    paint
             );
 
-            p.setAlpha(255);
-
-            c.restore();
+            canvas.restore();
         }
 
         /*
-         * ------------------------------------------------
+         * ==========================================
          * BUTTONS
-         * ------------------------------------------------
+         * ==========================================
          */
         void drawButtons(
-                Canvas c,
-                int w,
-                int h
+                Canvas canvas,
+                int width,
+                int height
         ) {
 
-            /*
-             * Sehr kleiner Rand.
-             */
             float side =
-                    w * 0.025f;
+                    width * 0.025f;
 
-            /*
-             * Abstand zwischen den Kästchen.
-             */
             float gap =
-                    w * 0.018f;
+                    width * 0.018f;
 
-            /*
-             * Drei gleich große Spalten.
-             */
-            float bw =
+            float buttonWidth =
                     (
-                            w
-                            - 2f * side
-                            - 2f * gap
+                            width
+                            - side * 2
+                            - gap * 2
                     ) / 3f;
 
-            /*
-             * Höhe der Kästchen.
-             */
-            float bh =
+            float buttonHeight =
                     Math.min(
-                            h * 0.125f,
+                            height * 0.125f,
                             190f
                     );
 
             /*
              * Erste Reihe.
              */
-            float y1 =
-                    h * 0.695f;
+            float firstY =
+                    height * 0.695f;
 
             /*
              * Zweite Reihe.
              */
-            float y2 =
-                    y1
-                    + bh
-                    + h * 0.022f;
+            float secondY =
+                    firstY
+                    + buttonHeight
+                    + height * 0.022f;
 
             for (int i = 0; i < 6; i++) {
 
-                int col =
+                int column =
                         i % 3;
 
                 int row =
@@ -613,71 +478,65 @@ public class MainActivity extends Activity {
 
                 float x =
                         side
-                        + col *
-                        (bw + gap)
-                        + buttonOffset[i];
+                        + column
+                        * (buttonWidth + gap)
+                        + buttonX[i];
 
                 float y =
                         row == 0
-                                ? y1
-                                : y2;
+                                ? firstY
+                                : secondY;
 
-                hit[i] =
+                buttons[i] =
                         new RectF(
                                 x,
                                 y,
-                                x + bw,
-                                y + bh
+                                x + buttonWidth,
+                                y + buttonHeight
                         );
 
                 drawButton(
-                        c,
+                        canvas,
                         x,
                         y,
-                        bw,
-                        bh,
+                        buttonWidth,
+                        buttonHeight,
                         labels[i],
-                        i == pressedIndex
+                        i == pressedButton
                 );
             }
         }
 
         /*
-         * ------------------------------------------------
-         * EINZELNER BUTTON
-         * ------------------------------------------------
+         * ==========================================
+         * EIN BUTTON
+         * ==========================================
          */
         void drawButton(
-                Canvas c,
+                Canvas canvas,
                 float x,
                 float y,
-                float w,
-                float h,
-                String label,
-                boolean isPressed
+                float width,
+                float height,
+                String text,
+                boolean pressed
         ) {
 
-            boolean isMainButton =
-                    label.equals(
-                            "MEIN AUTO"
-                    );
+            boolean red =
+                    text.equals("MEIN AUTO");
 
             /*
              * Button-Hintergrund.
              */
-            p.setStyle(
+            paint.setStyle(
                     Paint.Style.FILL
             );
 
-            if (isMainButton) {
+            if (red) {
 
-                /*
-                 * MEIN AUTO rot.
-                 */
-                p.setColor(
-                        Color.argb(
-                                240,
-                                135,
+                paint.setColor(
+                        Color.rgb(
+                                145,
                                 5,
                                 12
                         )
@@ -685,441 +544,348 @@ public class MainActivity extends Activity {
 
             } else {
 
-                /*
-                 * Andere Buttons dunkel.
-                 */
-                p.setColor(
-                        Color.argb(
-                                238,
-                                8,
-                                10,
-                                14
+                paint.setColor(
+                        Color.rgb(
+                                7,
+                                9,
+                                13
                         )
                 );
             }
 
-            /*
-             * Schatten.
-             */
-            p.setShadowLayer(
-                    18,
+            paint.setShadowLayer(
+                    16,
                     0,
-                    7,
+                    6,
                     Color.BLACK
             );
 
-            c.drawRoundRect(
+            canvas.drawRoundRect(
                     new RectF(
                             x,
                             y,
-                            x + w,
-                            y + h
+                            x + width,
+                            y + height
                     ),
                     20,
                     20,
-                    p
+                    paint
             );
 
-            p.clearShadowLayer();
+            paint.clearShadowLayer();
 
             /*
              * Rahmen.
              */
-            p.setStyle(
+            paint.setStyle(
                     Paint.Style.STROKE
             );
 
-            p.setStrokeWidth(
-                    isPressed
-                            ? 5f
-                            : 3f
+            paint.setStrokeWidth(
+                    pressed ? 5f : 3f
             );
 
-            if (isMainButton) {
+            if (red) {
 
-                p.setColor(
+                paint.setColor(
                         Color.rgb(
                                 255,
-                                35,
-                                35
+                                40,
+                                40
                         )
                 );
 
             } else {
 
-                p.setColor(
+                paint.setColor(
                         Color.rgb(
+                                100,
                                 105,
-                                108,
-                                116
+                                115
                         )
                 );
             }
 
-            c.drawRoundRect(
+            canvas.drawRoundRect(
                     new RectF(
                             x + 2,
                             y + 2,
-                            x + w - 2,
-                            y + h - 2
+                            x + width - 2,
+                            y + height - 2
                     ),
                     20,
                     20,
-                    p
+                    paint
             );
 
-            p.setStyle(
+            paint.setStyle(
                     Paint.Style.FILL
             );
-
-            /*
-             * Druckeffekt.
-             */
-            if (isPressed) {
-
-                p.setColor(
-                        Color.argb(
-                                70,
-                                255,
-                                0,
-                                0
-                        )
-                );
-
-                c.drawRoundRect(
-                        new RectF(
-                                x,
-                                y,
-                                x + w,
-                                y + h
-                        ),
-                        20,
-                        20,
-                        p
-                );
-            }
 
             /*
              * Icon.
              */
             drawIcon(
-                    c,
-                    x + w / 2f,
-                    y + h * 0.35f,
-                    w * 0.105f,
-                    label
+                    canvas,
+                    x + width / 2f,
+                    y + height * 0.36f,
+                    width * 0.105f,
+                    text
             );
 
             /*
              * Text.
              */
-            p.setTypeface(
+            paint.setTypeface(
                     Typeface.create(
                             "sans-serif",
                             Typeface.BOLD
                     )
             );
 
-            p.setTextAlign(
+            paint.setTextAlign(
                     Paint.Align.CENTER
             );
 
-            p.setTextSize(
+            paint.setTextSize(
                     Math.min(
-                            w * 0.082f,
+                            width * 0.082f,
                             27f
                     )
             );
 
-            p.setColor(
+            paint.setColor(
                     Color.WHITE
             );
 
-            c.drawText(
-                    label,
-                    x + w / 2f,
-                    y + h * 0.80f,
-                    p
+            canvas.drawText(
+                    text,
+                    x + width / 2f,
+                    y + height * 0.80f,
+                    paint
             );
         }
 
         /*
-         * ------------------------------------------------
-         * BUTTON-ICONS
-         * ------------------------------------------------
+         * ==========================================
+         * ICONS
+         * ==========================================
          */
         void drawIcon(
-                Canvas c,
+                Canvas canvas,
                 float cx,
                 float cy,
-                float s,
-                String label
+                float size,
+                String text
         ) {
 
-            p.setColor(
+            paint.setColor(
                     Color.WHITE
             );
 
-            p.setStyle(
+            paint.setStyle(
                     Paint.Style.STROKE
             );
 
-            p.setStrokeWidth(
+            paint.setStrokeWidth(
                     4.5f
             );
 
-            p.setStrokeCap(
+            paint.setStrokeCap(
                     Paint.Cap.ROUND
             );
 
-            /*
-             * MEIN AUTO
-             */
-            if (label.equals(
-                    "MEIN AUTO"
-            )) {
+            if (text.equals("MEIN AUTO")) {
 
-                c.drawRoundRect(
+                canvas.drawRoundRect(
                         new RectF(
-                                cx - s,
-                                cy - s * .45f,
-                                cx + s,
-                                cy + s * .45f
+                                cx - size,
+                                cy - size * .45f,
+                                cx + size,
+                                cy + size * .45f
                         ),
-                        s * .18f,
-                        s * .18f,
-                        p
+                        size * .18f,
+                        size * .18f,
+                        paint
                 );
 
-                c.drawCircle(
-                        cx - s * .55f,
-                        cy + s * .45f,
-                        s * .16f,
-                        p
+                canvas.drawCircle(
+                        cx - size * .55f,
+                        cy + size * .45f,
+                        size * .16f,
+                        paint
                 );
 
-                c.drawCircle(
-                        cx + s * .55f,
-                        cy + s * .45f,
-                        s * .16f,
-                        p
+                canvas.drawCircle(
+                        cx + size * .55f,
+                        cy + size * .45f,
+                        size * .16f,
+                        paint
                 );
 
-            /*
-             * REPARATUREN
-             */
-            } else if (label.equals(
-                    "REPARATUREN"
-            )) {
+            } else if (text.equals("REPARATUREN")) {
 
-                c.drawLine(
-                        cx - s,
-                        cy + s * .65f,
-                        cx + s,
-                        cy - s * .65f,
-                        p
+                canvas.drawLine(
+                        cx - size,
+                        cy + size * .65f,
+                        cx + size,
+                        cy - size * .65f,
+                        paint
                 );
 
-                c.drawCircle(
-                        cx - s * .55f,
-                        cy + s * .45f,
-                        s * .18f,
-                        p
+                canvas.drawCircle(
+                        cx - size * .55f,
+                        cy + size * .45f,
+                        size * .18f,
+                        paint
                 );
 
-                c.drawLine(
-                        cx - s * .65f,
-                        cy - s * .35f,
-                        cx - s * .2f,
-                        cy - s * .8f,
-                        p
-                );
+            } else if (text.equals("WARTUNGEN")) {
 
-            /*
-             * WARTUNGEN
-             */
-            } else if (label.equals(
-                    "WARTUNGEN"
-            )) {
-
-                c.drawRect(
+                canvas.drawRect(
                         new RectF(
-                                cx - s * .75f,
-                                cy - s * .8f,
-                                cx + s * .75f,
-                                cy + s * .8f
+                                cx - size * .75f,
+                                cy - size * .8f,
+                                cx + size * .75f,
+                                cy + size * .8f
                         ),
-                        p
+                        paint
                 );
 
-                c.drawLine(
-                        cx - s * .45f,
-                        cy - s * .2f,
-                        cx + s * .45f,
-                        cy - s * .2f,
-                        p
+                canvas.drawLine(
+                        cx - size * .45f,
+                        cy - size * .2f,
+                        cx + size * .45f,
+                        cy - size * .2f,
+                        paint
                 );
 
-                c.drawLine(
-                        cx - s * .45f,
-                        cy + s * .2f,
-                        cx + s * .45f,
-                        cy + s * .2f,
-                        p
+                canvas.drawLine(
+                        cx - size * .45f,
+                        cy + size * .2f,
+                        cx + size * .45f,
+                        cy + size * .2f,
+                        paint
                 );
 
-            /*
-             * KOSTEN
-             */
-            } else if (label.equals(
-                    "KOSTEN"
-            )) {
+            } else if (text.equals("KOSTEN")) {
 
-                c.drawRect(
+                canvas.drawRect(
                         new RectF(
-                                cx - s * .65f,
-                                cy - s * .8f,
-                                cx + s * .65f,
-                                cy + s * .8f
+                                cx - size * .65f,
+                                cy - size * .8f,
+                                cx + size * .65f,
+                                cy + size * .8f
                         ),
-                        p
+                        paint
                 );
 
-                c.drawLine(
-                        cx - s * .35f,
-                        cy - s * .25f,
-                        cx + s * .35f,
-                        cy - s * .25f,
-                        p
+                canvas.drawLine(
+                        cx - size * .35f,
+                        cy - size * .25f,
+                        cx + size * .35f,
+                        cy - size * .25f,
+                        paint
                 );
 
-                c.drawLine(
-                        cx - s * .35f,
-                        cy + s * .1f,
-                        cx + s * .35f,
-                        cy + s * .1f,
-                        p
+            } else if (text.equals("STATISTIK")) {
+
+                canvas.drawLine(
+                        cx - size * .7f,
+                        cy + size * .7f,
+                        cx - size * .7f,
+                        cy + size * .15f,
+                        paint
                 );
 
-            /*
-             * STATISTIK
-             */
-            } else if (label.equals(
-                    "STATISTIK"
-            )) {
-
-                c.drawLine(
-                        cx - s * .7f,
-                        cy + s * .7f,
-                        cx - s * .7f,
-                        cy + s * .15f,
-                        p
-                );
-
-                c.drawLine(
+                canvas.drawLine(
                         cx,
-                        cy + s * .7f,
+                        cy + size * .7f,
                         cx,
-                        cy - s * .35f,
-                        p
+                        cy - size * .35f,
+                        paint
                 );
 
-                c.drawLine(
-                        cx + s * .7f,
-                        cy + s * .7f,
-                        cx + s * .7f,
-                        cy - s * .75f,
-                        p
+                canvas.drawLine(
+                        cx + size * .7f,
+                        cy + size * .7f,
+                        cx + size * .7f,
+                        cy - size * .75f,
+                        paint
                 );
 
-            /*
-             * EINSTELLUNGEN
-             */
             } else {
 
-                c.drawCircle(
+                canvas.drawCircle(
                         cx,
                         cy,
-                        s * .72f,
-                        p
+                        size * .72f,
+                        paint
                 );
 
-                c.drawCircle(
+                canvas.drawCircle(
                         cx,
                         cy,
-                        s * .25f,
-                        p
+                        size * .25f,
+                        paint
                 );
 
                 for (int i = 0; i < 8; i++) {
 
-                    double a =
+                    double angle =
                             i * Math.PI / 4;
 
-                    c.drawLine(
-                            cx +
-                                    (float)
-                                            Math.cos(a)
-                                    * s * .8f,
-                            cy +
-                                    (float)
-                                            Math.sin(a)
-                                    * s * .8f,
-                            cx +
-                                    (float)
-                                            Math.cos(a)
-                                    * s,
-                            cy +
-                                    (float)
-                                            Math.sin(a)
-                                    * s,
-                            p
+                    canvas.drawLine(
+                            cx + (float)Math.cos(angle)
+                                    * size * .8f,
+                            cy + (float)Math.sin(angle)
+                                    * size * .8f,
+                            cx + (float)Math.cos(angle)
+                                    * size,
+                            cy + (float)Math.sin(angle)
+                                    * size,
+                            paint
                     );
                 }
             }
 
-            p.setStyle(
+            paint.setStyle(
                     Paint.Style.FILL
             );
         }
 
         /*
-         * ------------------------------------------------
+         * ==========================================
          * TOUCH
-         * ------------------------------------------------
+         * ==========================================
          */
         @Override
         public boolean onTouchEvent(
-                MotionEvent e
+                MotionEvent event
         ) {
 
-            /*
-             * Finger gedrückt.
-             */
             if (
-                    e.getAction()
+                    event.getAction()
                             == MotionEvent.ACTION_DOWN
             ) {
 
-                pressedIndex = -1;
+                pressedButton = -1;
 
                 for (int i = 0; i < 6; i++) {
 
                     if (
-                            hit[i] != null
+                            buttons[i] != null
                             &&
-                            hit[i].contains(
-                                    e.getX(),
-                                    e.getY()
+                            buttons[i].contains(
+                                    event.getX(),
+                                    event.getY()
                             )
                             &&
-                            Math.abs(
-                                    buttonOffset[i]
-                            )
+                            Math.abs(buttonX[i])
                                     < getWidth() / 2f
                     ) {
 
-                        pressedIndex = i;
+                        pressedButton = i;
                     }
                 }
 
@@ -1128,49 +894,46 @@ public class MainActivity extends Activity {
                 return true;
             }
 
-            /*
-             * Finger losgelassen.
-             */
             if (
-                    e.getAction()
+                    event.getAction()
                             == MotionEvent.ACTION_UP
             ) {
 
-                int idx =
-                        pressedIndex;
+                int selected =
+                        pressedButton;
 
-                pressedIndex = -1;
+                pressedButton = -1;
 
                 invalidate();
 
                 if (
-                        idx >= 0
+                        selected >= 0
                         &&
-                        hit[idx] != null
+                        buttons[selected] != null
                         &&
-                        hit[idx].contains(
-                                e.getX(),
-                                e.getY()
+                        buttons[selected].contains(
+                                event.getX(),
+                                event.getY()
                         )
                 ) {
 
-                    Intent in =
+                    Intent intent =
                             new Intent(
                                     MainActivity.this,
                                     SubmenuActivity.class
                             );
 
-                    in.putExtra(
+                    intent.putExtra(
                             "title",
-                            labels[idx]
+                            labels[selected]
                     );
 
-                    in.putExtra(
+                    intent.putExtra(
                             "subtitle",
-                            subTitles[idx]
+                            subtitles[selected]
                     );
 
-                    startActivity(in);
+                    startActivity(intent);
                 }
 
                 return true;
