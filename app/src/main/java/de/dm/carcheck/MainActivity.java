@@ -69,23 +69,20 @@ public class MainActivity extends Activity {
 
         private final float[] buttonOffset = new float[6];
 
-        private float logoOffset = -600f;
+        private float logoOffset = -700f;
 
         private int pressedIndex = -1;
 
         AutoCheckView() {
             super(MainActivity.this);
 
-            /*
-             * Hintergrundbild
-             */
             background = BitmapFactory.decodeResource(
                     getResources(),
                     R.drawable.home_background
             );
 
             /*
-             * Dein echtes Auto-Check-Logo
+             * DAS VON DIR HOCHGELADENE LOGO
              */
             logo = BitmapFactory.decodeResource(
                     getResources(),
@@ -109,7 +106,7 @@ public class MainActivity extends Activity {
 
         /*
          * =====================================================
-         * ANIMATION
+         * STARTANIMATION
          * =====================================================
          */
 
@@ -126,27 +123,27 @@ public class MainActivity extends Activity {
             }
 
             /*
-             * Obere Reihe kommt von links
+             * Obere Reihe kommt von links.
              */
             buttonOffset[0] = -width;
             buttonOffset[1] = -width;
             buttonOffset[2] = -width;
 
             /*
-             * Untere Reihe kommt von rechts
+             * Untere Reihe kommt von rechts.
              */
             buttonOffset[3] = width;
             buttonOffset[4] = width;
             buttonOffset[5] = width;
 
             /*
-             * Logo kommt von oben
+             * Logo fährt von oben herunter.
              */
             ObjectAnimator logoAnimation =
                     ObjectAnimator.ofFloat(
                             this,
                             "logoOffset",
-                            -600f,
+                            -700f,
                             0f
                     );
 
@@ -194,7 +191,7 @@ public class MainActivity extends Activity {
 
         /*
          * =====================================================
-         * LOGO ANIMATION
+         * LOGO
          * =====================================================
          */
 
@@ -209,7 +206,7 @@ public class MainActivity extends Activity {
 
         /*
          * =====================================================
-         * BUTTON ANIMATION
+         * BUTTON OFFSETS
          * =====================================================
          */
 
@@ -282,7 +279,7 @@ public class MainActivity extends Activity {
             int height = getHeight();
 
             /*
-             * Alles zunächst schwarz.
+             * KOMPLETTER HINTERGRUND SCHWARZ
              */
             canvas.drawColor(Color.BLACK);
 
@@ -296,7 +293,11 @@ public class MainActivity extends Activity {
             );
 
             /*
-             * 2. AUTO / WERKSTATT
+             * 2. NUR DER SAUBERE AUTO-BEREICH
+             *
+             * WICHTIG:
+             * Der Bereich mit den alten Buttons
+             * wird gar nicht erst verwendet.
              */
             drawCarImage(
                     canvas,
@@ -305,22 +306,19 @@ public class MainActivity extends Activity {
             );
 
             /*
-             * 3. WICHTIG:
+             * 3. SCHWARZER BEREICH
              *
-             * Der komplette untere Bereich wird
-             * SCHWARZ überdeckt.
-             *
-             * Dadurch sind die alten Buttons aus
-             * home_background.jpg garantiert weg.
+             * Dieser Bereich beginnt VOR den
+             * alten Hintergrund-Buttons.
              */
-            drawBottomBlackArea(
+            drawCleanBlackArea(
                     canvas,
                     width,
                     height
             );
 
             /*
-             * 4. Unsere neuen Buttons
+             * 4. NEUE BUTTONS
              */
             drawButtons(
                     canvas,
@@ -353,14 +351,13 @@ public class MainActivity extends Activity {
             );
 
             /*
-             * Kleiner schwarzer Rand oben.
+             * Logo etwas weiter unten.
              */
             float top =
                     height * 0.018f;
 
             /*
-             * Logo fast über die gesamte
-             * Bildschirmbreite.
+             * Sehr großes Logo.
              */
             float logoWidth =
                     width * 0.965f;
@@ -373,7 +370,8 @@ public class MainActivity extends Activity {
                     logoWidth * ratio;
 
             /*
-             * Logo darf nicht zu hoch werden.
+             * Begrenzung damit es nicht
+             * mit dem Auto kollidiert.
              */
             float maxHeight =
                     height * 0.245f;
@@ -443,17 +441,28 @@ public class MainActivity extends Activity {
                     background.getHeight();
 
             /*
-             * Nur den Auto-Bereich aus dem
-             * ursprünglichen Bild verwenden.
-             *
-             * Logo oben und Buttons unten
-             * werden NICHT übernommen.
+             * OBERER BEREICH DES JPGs WIRD NICHT
+             * VERWENDET, weil dort das alte Logo sitzt.
              */
             int sourceTop =
-                    (int) (imageHeight * 0.285f);
+                    (int) (
+                            imageHeight * 0.285f
+                    );
 
+            /*
+             * SEHR WICHTIG:
+             *
+             * Wir schneiden hier VOR den
+             * alten Buttons ab.
+             *
+             * Die alten Buttons werden somit
+             * überhaupt nicht mehr in das
+             * neue Bild übernommen.
+             */
             int sourceBottom =
-                    (int) (imageHeight * 0.735f);
+                    (int) (
+                            imageHeight * 0.620f
+                    );
 
             Rect source =
                     new Rect(
@@ -464,19 +473,17 @@ public class MainActivity extends Activity {
                     );
 
             /*
-             * Auto beginnt direkt unterhalb
-             * des Logo-Bereichs.
+             * Auto beginnt unter dem Logo.
              */
             float destinationTop =
                     height * 0.255f;
 
             /*
-             * Hier endet das Auto-Bild.
-             *
-             * Danach kommt der schwarze Balken.
+             * Auto endet deutlich VOR
+             * unseren neuen Buttons.
              */
             float destinationBottom =
-                    height * 0.675f;
+                    height * 0.635f;
 
             RectF destination =
                     new RectF(
@@ -501,29 +508,23 @@ public class MainActivity extends Activity {
 
         /*
          * =====================================================
-         * SCHWARZER BALKEN
+         * SCHWARZER BEREICH
          * =====================================================
          *
-         * Dieser Bereich ist absichtlich komplett schwarz.
+         * AB HIER GIBT ES ABSOLUT KEIN BILD MEHR.
          *
-         * Er verdeckt:
-         *
-         * - alte Buttons
-         * - alte Icons
-         * - alte Beschriftungen
-         * - Spiegelungen der alten Buttons
-         *
-         * aus dem JPG.
+         * Damit können die alten Buttons aus
+         * dem JPG nicht mehr erscheinen.
          */
 
-        private void drawBottomBlackArea(
+        private void drawCleanBlackArea(
                 Canvas canvas,
                 int width,
                 int height
         ) {
 
             float top =
-                    height * 0.675f;
+                    height * 0.635f;
 
             paint.setStyle(
                     Paint.Style.FILL
@@ -556,21 +557,12 @@ public class MainActivity extends Activity {
                 int height
         ) {
 
-            /*
-             * Sehr kleine Seitenränder.
-             */
             float side =
                     width * 0.018f;
 
-            /*
-             * Abstand zwischen den Buttons.
-             */
             float gap =
                     width * 0.014f;
 
-            /*
-             * Drei gleich breite Spalten.
-             */
             float buttonWidth =
                     (
                             width
@@ -585,18 +577,16 @@ public class MainActivity extends Activity {
                     height * 0.105f;
 
             /*
-             * ERSTE REIHE
-             *
-             * Direkt unter dem schwarzen Balken.
+             * Erste Reihe.
              */
             float firstY =
-                    height * 0.700f;
+                    height * 0.690f;
 
             /*
-             * ZWEITE REIHE
+             * Zweite Reihe.
              */
             float secondY =
-                    height * 0.820f;
+                    height * 0.810f;
 
             for (int i = 0; i < 6; i++) {
 
@@ -658,9 +648,6 @@ public class MainActivity extends Activity {
                             "MEIN AUTO"
                     );
 
-            /*
-             * Buttonfläche
-             */
             paint.setStyle(
                     Paint.Style.FILL
             );
@@ -708,7 +695,7 @@ public class MainActivity extends Activity {
             paint.clearShadowLayer();
 
             /*
-             * Button-Rahmen
+             * Rahmen
              */
             paint.setStyle(
                     Paint.Style.STROKE
@@ -767,7 +754,7 @@ public class MainActivity extends Activity {
             );
 
             /*
-             * Beschriftung
+             * Text
              */
             paint.setTypeface(
                     android.graphics.Typeface.create(
