@@ -45,21 +45,27 @@ public class MainActivity extends Activity {
         private Bitmap background;
         private Bitmap logo;
 
-        private final Paint paint = new Paint(
-                Paint.ANTI_ALIAS_FLAG
-                        | Paint.FILTER_BITMAP_FLAG
-                        | Paint.DITHER_FLAG
-        );
+        private final Paint paint =
+                new Paint(
+                        Paint.ANTI_ALIAS_FLAG
+                                | Paint.FILTER_BITMAP_FLAG
+                                | Paint.DITHER_FLAG
+                );
 
-        private final Rect sourceRect = new Rect();
+        private final Rect sourceRect =
+                new Rect();
 
-        private final RectF[] hit = new RectF[6];
+        private final RectF[] hit =
+                new RectF[6];
 
-        private final float[] buttonOffset = new float[6];
+        private final float[] buttonOffset =
+                new float[6];
 
-        private float logoOffset = -700f;
+        private float logoOffset =
+                -700f;
 
-        private int pressedIndex = -1;
+        private int pressedIndex =
+                -1;
 
         private final String[] labels = {
                 "Mein Auto",
@@ -83,20 +89,28 @@ public class MainActivity extends Activity {
             super(MainActivity.this);
 
             /*
-             * NEUES ZENTRIERTES HINTERGRUNDBILD
+             * =================================================
+             * HINTERGRUNDBILD
+             * =================================================
+             *
+             * Dein zentriertes Hintergrundbild.
              */
-            background = BitmapFactory.decodeResource(
-                    getResources(),
-                    R.drawable.home_background_centered
-            );
+            background =
+                    BitmapFactory.decodeResource(
+                            getResources(),
+                            R.drawable.home_background_centered
+                    );
 
             /*
-             * AUTO-CHECK-LOGO
+             * =================================================
+             * AUTO CHECK LOGO
+             * =================================================
              */
-            logo = BitmapFactory.decodeResource(
-                    getResources(),
-                    R.drawable.auto_check_logo
-            );
+            logo =
+                    BitmapFactory.decodeResource(
+                            getResources(),
+                            R.drawable.auto_check_logo
+                    );
 
             setLayerType(
                     View.LAYER_TYPE_SOFTWARE,
@@ -117,29 +131,44 @@ public class MainActivity extends Activity {
 
         private void startIntro() {
 
-            float width = getWidth();
+            float width =
+                    getWidth();
 
             if (width <= 0) {
+
                 postDelayed(
                         this::startIntro,
                         80
                 );
+
                 return;
             }
 
             /*
-             * Obere Reihe kommt von links.
+             * Obere Reihe:
+             * von links nach rechts.
              */
-            buttonOffset[0] = -width;
-            buttonOffset[1] = -width;
-            buttonOffset[2] = -width;
+            buttonOffset[0] =
+                    -width;
+
+            buttonOffset[1] =
+                    -width;
+
+            buttonOffset[2] =
+                    -width;
 
             /*
-             * Untere Reihe kommt von rechts.
+             * Untere Reihe:
+             * von rechts nach links.
              */
-            buttonOffset[3] = width;
-            buttonOffset[4] = width;
-            buttonOffset[5] = width;
+            buttonOffset[3] =
+                    width;
+
+            buttonOffset[4] =
+                    width;
+
+            buttonOffset[5] =
+                    width;
 
             /*
              * Logo kommt von oben.
@@ -152,12 +181,18 @@ public class MainActivity extends Activity {
                             0f
                     );
 
-            logoAnimation.setDuration(1200);
+            logoAnimation.setDuration(
+                    1200
+            );
 
             ArrayList<Animator> animations =
                     new ArrayList<>();
 
-            for (int i = 0; i < 6; i++) {
+            for (
+                    int i = 0;
+                    i < 6;
+                    i++
+            ) {
 
                 ObjectAnimator animation =
                         ObjectAnimator.ofFloat(
@@ -167,13 +202,17 @@ public class MainActivity extends Activity {
                                 0f
                         );
 
-                animation.setDuration(850);
+                animation.setDuration(
+                        850
+                );
 
                 animation.setStartDelay(
                         (i % 3) * 100
                 );
 
-                animations.add(animation);
+                animations.add(
+                        animation
+                );
             }
 
             AnimatorSet buttonSet =
@@ -200,12 +239,18 @@ public class MainActivity extends Activity {
          * =====================================================
          */
 
-        public void setLogoOffset(float value) {
-            logoOffset = value;
+        public void setLogoOffset(
+                float value
+        ) {
+
+            logoOffset =
+                    value;
+
             invalidate();
         }
 
         public float getLogoOffset() {
+
             return logoOffset;
         }
 
@@ -215,57 +260,93 @@ public class MainActivity extends Activity {
          * =====================================================
          */
 
-        public void setButtonOffset0(float value) {
-            buttonOffset[0] = value;
+        public void setButtonOffset0(
+                float value
+        ) {
+
+            buttonOffset[0] =
+                    value;
+
             invalidate();
         }
 
         public float getButtonOffset0() {
+
             return buttonOffset[0];
         }
 
-        public void setButtonOffset1(float value) {
-            buttonOffset[1] = value;
+        public void setButtonOffset1(
+                float value
+        ) {
+
+            buttonOffset[1] =
+                    value;
+
             invalidate();
         }
 
         public float getButtonOffset1() {
+
             return buttonOffset[1];
         }
 
-        public void setButtonOffset2(float value) {
-            buttonOffset[2] = value;
+        public void setButtonOffset2(
+                float value
+        ) {
+
+            buttonOffset[2] =
+                    value;
+
             invalidate();
         }
 
         public float getButtonOffset2() {
+
             return buttonOffset[2];
         }
 
-        public void setButtonOffset3(float value) {
-            buttonOffset[3] = value;
+        public void setButtonOffset3(
+                float value
+        ) {
+
+            buttonOffset[3] =
+                    value;
+
             invalidate();
         }
 
         public float getButtonOffset3() {
+
             return buttonOffset[3];
         }
 
-        public void setButtonOffset4(float value) {
-            buttonOffset[4] = value;
+        public void setButtonOffset4(
+                float value
+        ) {
+
+            buttonOffset[4] =
+                    value;
+
             invalidate();
         }
 
         public float getButtonOffset4() {
+
             return buttonOffset[4];
         }
 
-        public void setButtonOffset5(float value) {
-            buttonOffset[5] = value;
+        public void setButtonOffset5(
+                float value
+        ) {
+
+            buttonOffset[5] =
+                    value;
+
             invalidate();
         }
 
         public float getButtonOffset5() {
+
             return buttonOffset[5];
         }
 
@@ -276,20 +357,29 @@ public class MainActivity extends Activity {
          */
 
         @Override
-        protected void onDraw(Canvas canvas) {
+        protected void onDraw(
+                Canvas canvas
+        ) {
 
-            super.onDraw(canvas);
+            super.onDraw(
+                    canvas
+            );
 
-            int width = getWidth();
-            int height = getHeight();
+            int width =
+                    getWidth();
+
+            int height =
+                    getHeight();
 
             /*
-             * Grundfläche schwarz.
+             * Grundfläche.
              */
-            canvas.drawColor(Color.BLACK);
+            canvas.drawColor(
+                    Color.BLACK
+            );
 
             /*
-             * Hintergrundbild.
+             * Hintergrund.
              */
             drawCarImage(
                     canvas,
@@ -307,7 +397,7 @@ public class MainActivity extends Activity {
             );
 
             /*
-             * Schwarzer Bereich unten.
+             * Unterer schwarzer Bereich.
              */
             drawBlackArea(
                     canvas,
@@ -361,7 +451,10 @@ public class MainActivity extends Activity {
             float maxHeight =
                     height * 0.245f;
 
-            if (logoHeight > maxHeight) {
+            if (
+                    logoHeight >
+                            maxHeight
+            ) {
 
                 logoHeight =
                         maxHeight;
@@ -371,10 +464,15 @@ public class MainActivity extends Activity {
             }
 
             float left =
-                    (width - logoWidth) / 2f;
+                    (
+                            width -
+                                    logoWidth
+                    ) / 2f;
 
             /*
-             * LOGO WEITER NACH UNTEN.
+             * =================================================
+             * LOGO WEITER UNTEN
+             * =================================================
              */
             float top =
                     height * 0.055f;
@@ -394,10 +492,21 @@ public class MainActivity extends Activity {
                     logo.getHeight()
             );
 
-            paint.setShader(null);
-            paint.setAlpha(255);
-            paint.setFilterBitmap(true);
-            paint.setDither(true);
+            paint.setShader(
+                    null
+            );
+
+            paint.setAlpha(
+                    255
+            );
+
+            paint.setFilterBitmap(
+                    true
+            );
+
+            paint.setDither(
+                    true
+            );
 
             canvas.drawBitmap(
                     logo,
@@ -432,9 +541,8 @@ public class MainActivity extends Activity {
                     background.getHeight();
 
             /*
-             * KOMPLETTES BILD.
-             *
-             * Kein alter Ausschnitt.
+             * Das komplette zentrierte Bild
+             * verwenden.
              */
             sourceRect.set(
                     0,
@@ -444,47 +552,61 @@ public class MainActivity extends Activity {
             );
 
             /*
-             * Das Bild beginnt ganz oben.
+             * Bildbereich beginnt ganz oben.
              */
-            float areaTop = 0f;
+            float areaTop =
+                    0f;
 
             /*
-             * Der Bildbereich endet wie gewünscht
-             * oberhalb des unteren Bereichs.
+             * Bereich des oberen Bildteils.
              */
             float areaBottom =
                     height * 0.705f;
 
             float areaHeight =
-                    areaBottom - areaTop;
+                    areaBottom -
+                            areaTop;
 
             /*
-             * Komplettes Bild proportional einpassen.
+             * Bild proportional einpassen.
+             *
+             * Wichtig:
+             * Kein Cropping.
              */
             float scale =
                     Math.min(
-                            (float) width / imageWidth,
-                            areaHeight / imageHeight
+                            (float) width /
+                                    imageWidth,
+                            areaHeight /
+                                    imageHeight
                     );
 
             float drawWidth =
-                    imageWidth * scale;
+                    imageWidth *
+                            scale;
 
             float drawHeight =
-                    imageHeight * scale;
+                    imageHeight *
+                            scale;
 
             /*
              * Horizontal zentrieren.
              */
             float left =
-                    (width - drawWidth) / 2f;
+                    (
+                            width -
+                                    drawWidth
+                    ) / 2f;
 
             /*
              * Vertikal zentrieren.
              */
             float top =
-                    areaTop
-                            + (areaHeight - drawHeight) / 2f;
+                    areaTop +
+                            (
+                                    areaHeight -
+                                            drawHeight
+                            ) / 2f;
 
             RectF destination =
                     new RectF(
@@ -494,10 +616,21 @@ public class MainActivity extends Activity {
                             top + drawHeight
                     );
 
-            paint.setShader(null);
-            paint.setAlpha(255);
-            paint.setFilterBitmap(true);
-            paint.setDither(true);
+            paint.setShader(
+                    null
+            );
+
+            paint.setAlpha(
+                    255
+            );
+
+            paint.setFilterBitmap(
+                    true
+            );
+
+            paint.setDither(
+                    true
+            );
 
             canvas.drawBitmap(
                     background,
@@ -520,12 +653,15 @@ public class MainActivity extends Activity {
         ) {
 
             /*
-             * WIEDER WIE IM VORIGEN ZUSTAND.
+             * Wie im gewünschten
+             * unteren Layout.
              */
             float top =
                     height * 0.635f;
 
-            paint.setShader(null);
+            paint.setShader(
+                    null
+            );
 
             paint.setStyle(
                     Paint.Style.FILL
@@ -535,7 +671,9 @@ public class MainActivity extends Activity {
                     Color.BLACK
             );
 
-            paint.setAlpha(255);
+            paint.setAlpha(
+                    255
+            );
 
             canvas.drawRect(
                     0,
@@ -548,7 +686,7 @@ public class MainActivity extends Activity {
 
         /*
          * =====================================================
-         * BUTTONS
+         * BUTTON-BEREICH
          * =====================================================
          */
 
@@ -558,12 +696,21 @@ public class MainActivity extends Activity {
                 int height
         ) {
 
+            /*
+             * Seitenabstand.
+             */
             float side =
                     width * 0.018f;
 
+            /*
+             * Abstand zwischen den Karten.
+             */
             float gap =
                     width * 0.014f;
 
+            /*
+             * Drei Karten nebeneinander.
+             */
             float cardWidth =
                     (
                             width
@@ -571,22 +718,37 @@ public class MainActivity extends Activity {
                                     - gap * 2f
                     ) / 3f;
 
+            /*
+             * Kartengröße wie im
+             * gewünschten zweiten Bild.
+             */
             float cardHeight =
                     height * 0.112f;
 
             /*
-             * WIEDER DIE VORHERIGE POSITION.
+             * =================================================
+             * ERSTE REIHE
+             * =================================================
+             *
+             * Genau der gewünschte
+             * Buttonbereich.
              */
             float firstY =
                     height * 0.690f;
 
             /*
-             * WIEDER DIE VORHERIGE POSITION.
+             * =================================================
+             * ZWEITE REIHE
+             * =================================================
              */
             float secondY =
                     height * 0.815f;
 
-            for (int i = 0; i < 6; i++) {
+            for (
+                    int i = 0;
+                    i < 6;
+                    i++
+            ) {
 
                 int column =
                         i % 3;
@@ -597,7 +759,10 @@ public class MainActivity extends Activity {
                 float x =
                         side
                                 + column *
-                                (cardWidth + gap)
+                                (
+                                        cardWidth +
+                                                gap
+                                )
                                 + buttonOffset[i];
 
                 float y =
@@ -649,6 +814,9 @@ public class MainActivity extends Activity {
                             y + height
                     );
 
+            /*
+             * Grundfarben.
+             */
             int baseColor =
                     Color.rgb(
                             13,
@@ -663,6 +831,9 @@ public class MainActivity extends Activity {
                             38
                     );
 
+            /*
+             * Kartenverlauf.
+             */
             paint.setStyle(
                     Paint.Style.FILL
             );
@@ -694,11 +865,17 @@ public class MainActivity extends Activity {
             );
 
             paint.clearShadowLayer();
-            paint.setShader(null);
+
+            paint.setShader(
+                    null
+            );
 
             /*
-             * MEIN AUTO ROT.
+             * =================================================
+             * MEIN AUTO ROT
+             * =================================================
              */
+
             if (index == 0) {
 
                 paint.setShader(
@@ -728,18 +905,25 @@ public class MainActivity extends Activity {
                         paint
                 );
 
-                paint.setShader(null);
+                paint.setShader(
+                        null
+                );
             }
 
             /*
-             * Rahmen.
+             * =================================================
+             * RAHMEN
+             * =================================================
              */
+
             paint.setStyle(
                     Paint.Style.STROKE
             );
 
             paint.setStrokeWidth(
-                    pressed ? 4f : 2f
+                    pressed
+                            ? 4f
+                            : 2f
             );
 
             if (index == 0) {
@@ -780,8 +964,11 @@ public class MainActivity extends Activity {
             );
 
             /*
-             * ICON-KREIS.
+             * =================================================
+             * ICON
+             * =================================================
              */
+
             float iconCenterX =
                     x + width * 0.275f;
 
@@ -800,14 +987,27 @@ public class MainActivity extends Activity {
             );
 
             /*
-             * TITEL.
+             * =================================================
+             * TITEL
+             * =================================================
+             *
+             * Diese Werte sind bewusst wieder
+             * kleiner wie im gewünschten Bild 2.
              */
+
+            paint.setShader(
+                    null
+            );
+
             paint.setColor(
                     Color.WHITE
             );
 
             paint.setTypeface(
-                    Typeface.DEFAULT_BOLD
+                    Typeface.create(
+                            "sans-serif",
+                            Typeface.BOLD
+                    )
             );
 
             paint.setTextAlign(
@@ -815,45 +1015,60 @@ public class MainActivity extends Activity {
             );
 
             paint.setTextSize(
-                    height * 0.22f
+                    Math.min(
+                            width * 0.075f,
+                            26f
+                    )
             );
 
             canvas.drawText(
                     labels[index],
-                    x + width * 0.43f,
-                    y + height * 0.42f,
+                    x + width * 0.12f,
+                    y + height * 0.70f,
                     paint
             );
 
             /*
-             * UNTERTITEL.
+             * =================================================
+             * UNTERTITEL
+             * =================================================
              */
-            paint.setTypeface(
-                    Typeface.DEFAULT
-            );
 
-            paint.setTextSize(
-                    height * 0.115f
+            paint.setTypeface(
+                    Typeface.create(
+                            "sans-serif",
+                            Typeface.NORMAL
+                    )
             );
 
             paint.setColor(
                     Color.rgb(
-                            175,
-                            182,
-                            193
+                            155,
+                            165,
+                            180
+                    )
+            );
+
+            paint.setTextSize(
+                    Math.min(
+                            width * 0.047f,
+                            17f
                     )
             );
 
             canvas.drawText(
                     subtitles[index],
-                    x + width * 0.43f,
-                    y + height * 0.66f,
+                    x + width * 0.12f,
+                    y + height * 0.87f,
                     paint
             );
 
             /*
-             * PFEIL.
+             * =================================================
+             * PFEIL
+             * =================================================
              */
+
             float arrowX =
                     x + width * 0.88f;
 
@@ -887,8 +1102,13 @@ public class MainActivity extends Activity {
         ) {
 
             int color =
-                    getAccentColor(index);
+                    getAccentColor(
+                            index
+                    );
 
+            /*
+             * Hintergrundkreis.
+             */
             paint.setStyle(
                     Paint.Style.FILL
             );
@@ -909,6 +1129,9 @@ public class MainActivity extends Activity {
                     paint
             );
 
+            /*
+             * Kreisrand.
+             */
             paint.setStyle(
                     Paint.Style.STROKE
             );
@@ -933,6 +1156,9 @@ public class MainActivity extends Activity {
                     paint
             );
 
+            /*
+             * Icon.
+             */
             paint.setColor(
                     color
             );
@@ -951,57 +1177,69 @@ public class MainActivity extends Activity {
             switch (index) {
 
                 case 0:
+
                     drawCarIcon(
                             canvas,
                             cx,
                             cy,
                             s
                     );
+
                     break;
 
                 case 1:
+
                     drawWrenchIcon(
                             canvas,
                             cx,
                             cy,
                             s
                     );
+
                     break;
 
                 case 2:
+
                     drawCalendarIcon(
                             canvas,
                             cx,
                             cy,
                             s
                     );
+
                     break;
 
                 case 3:
+
                     drawMoneyIcon(
                             canvas,
                             cx,
                             cy,
                             s
                     );
+
                     break;
 
                 case 4:
+
                     drawStatisticsIcon(
                             canvas,
                             cx,
                             cy,
                             s
                     );
+
                     break;
 
                 case 5:
+
                     drawGearIcon(
                             canvas,
                             cx,
                             cy,
                             s
                     );
+
                     break;
             }
 
@@ -1023,6 +1261,7 @@ public class MainActivity extends Activity {
             switch (index) {
 
                 case 0:
+
                     return Color.rgb(
                             255,
                             70,
@@ -1030,6 +1269,7 @@ public class MainActivity extends Activity {
                     );
 
                 case 1:
+
                     return Color.rgb(
                             0,
                             150,
@@ -1037,6 +1277,7 @@ public class MainActivity extends Activity {
                     );
 
                 case 2:
+
                     return Color.rgb(
                             255,
                             190,
@@ -1044,6 +1285,7 @@ public class MainActivity extends Activity {
                     );
 
                 case 3:
+
                     return Color.rgb(
                             65,
                             230,
@@ -1051,6 +1293,7 @@ public class MainActivity extends Activity {
                     );
 
                 case 4:
+
                     return Color.rgb(
                             175,
                             70,
@@ -1058,6 +1301,7 @@ public class MainActivity extends Activity {
                     );
 
                 default:
+
                     return Color.rgb(
                             225,
                             230,
@@ -1250,9 +1494,17 @@ public class MainActivity extends Activity {
                     Paint.Style.FILL
             );
 
-            for (int row = 0; row < 2; row++) {
+            for (
+                    int row = 0;
+                    row < 2;
+                    row++
+            ) {
 
-                for (int col = 0; col < 3; col++) {
+                for (
+                        int col = 0;
+                        col < 3;
+                        col++
+                ) {
 
                     canvas.drawCircle(
                             cx - s * 0.40f
@@ -1283,7 +1535,11 @@ public class MainActivity extends Activity {
                 float s
         ) {
 
-            for (int i = 0; i < 3; i++) {
+            for (
+                    int i = 0;
+                    i < 3;
+                    i++
+            ) {
 
                 canvas.drawOval(
                         new RectF(
@@ -1414,29 +1670,37 @@ public class MainActivity extends Activity {
                     paint
             );
 
-            for (int i = 0; i < 8; i++) {
+            for (
+                    int i = 0;
+                    i < 8;
+                    i++
+            ) {
 
                 double angle =
                         i * Math.PI / 4.0;
 
                 float x1 =
                         cx
-                                + (float) Math.cos(angle)
+                                + (float)
+                                Math.cos(angle)
                                 * s * 0.72f;
 
                 float y1 =
                         cy
-                                + (float) Math.sin(angle)
+                                + (float)
+                                Math.sin(angle)
                                 * s * 0.72f;
 
                 float x2 =
                         cx
-                                + (float) Math.cos(angle)
+                                + (float)
+                                Math.cos(angle)
                                 * s * 0.95f;
 
                 float y2 =
                         cy
-                                + (float) Math.sin(angle)
+                                + (float)
+                                Math.sin(angle)
                                 * s * 0.95f;
 
                 canvas.drawLine(
@@ -1464,8 +1728,13 @@ public class MainActivity extends Activity {
         ) {
 
             int accent =
-                    getAccentColor(index);
+                    getAccentColor(
+                            index
+                    );
 
+            /*
+             * Kreisfläche.
+             */
             paint.setStyle(
                     Paint.Style.FILL
             );
@@ -1486,6 +1755,9 @@ public class MainActivity extends Activity {
                     paint
             );
 
+            /*
+             * Kreisrand.
+             */
             paint.setStyle(
                     Paint.Style.STROKE
             );
@@ -1509,6 +1781,9 @@ public class MainActivity extends Activity {
                     paint
             );
 
+            /*
+             * Pfeil.
+             */
             paint.setColor(
                     Color.WHITE
             );
@@ -1561,14 +1836,25 @@ public class MainActivity extends Activity {
                 MotionEvent event
         ) {
 
+            /*
+             * -------------------------------------------------
+             * TOUCH DOWN
+             * -------------------------------------------------
+             */
             if (
                     event.getAction()
-                            == MotionEvent.ACTION_DOWN
+                            ==
+                            MotionEvent.ACTION_DOWN
             ) {
 
-                pressedIndex = -1;
+                pressedIndex =
+                        -1;
 
-                for (int i = 0; i < 6; i++) {
+                for (
+                        int i = 0;
+                        i < 6;
+                        i++
+                ) {
 
                     if (
                             hit[i] != null
@@ -1580,10 +1866,14 @@ public class MainActivity extends Activity {
                                     &&
                             Math.abs(
                                     buttonOffset[i]
-                            ) < getWidth() / 2f
+                            )
+                                    <
+                                    getWidth() / 2f
                     ) {
 
-                        pressedIndex = i;
+                        pressedIndex =
+                                i;
+
                         break;
                     }
                 }
@@ -1593,15 +1883,22 @@ public class MainActivity extends Activity {
                 return true;
             }
 
+            /*
+             * -------------------------------------------------
+             * TOUCH UP
+             * -------------------------------------------------
+             */
             if (
                     event.getAction()
-                            == MotionEvent.ACTION_UP
+                            ==
+                            MotionEvent.ACTION_UP
             ) {
 
                 int selected =
                         pressedIndex;
 
-                pressedIndex = -1;
+                pressedIndex =
+                        -1;
 
                 invalidate();
 
@@ -1632,7 +1929,9 @@ public class MainActivity extends Activity {
                             subtitles[selected]
                     );
 
-                    startActivity(intent);
+                    startActivity(
+                            intent
+                    );
                 }
 
                 return true;
