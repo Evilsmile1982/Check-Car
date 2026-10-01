@@ -45,27 +45,18 @@ public class MainActivity extends Activity {
         private Bitmap background;
         private Bitmap logo;
 
-        private final Paint paint =
-                new Paint(
-                        Paint.ANTI_ALIAS_FLAG
-                                | Paint.FILTER_BITMAP_FLAG
-                                | Paint.DITHER_FLAG
-                );
+        private final Paint paint = new Paint(
+                Paint.ANTI_ALIAS_FLAG
+                        | Paint.FILTER_BITMAP_FLAG
+                        | Paint.DITHER_FLAG
+        );
 
-        private final Rect sourceRect =
-                new Rect();
+        private final Rect sourceRect = new Rect();
+        private final RectF[] hit = new RectF[6];
+        private final float[] buttonOffset = new float[6];
 
-        private final RectF[] hit =
-                new RectF[6];
-
-        private final float[] buttonOffset =
-                new float[6];
-
-        private float logoOffset =
-                -700f;
-
-        private int pressedIndex =
-                -1;
+        private float logoOffset = -700f;
+        private int pressedIndex = -1;
 
         private final String[] labels = {
                 "Mein Auto",
@@ -88,402 +79,170 @@ public class MainActivity extends Activity {
         AutoCheckView() {
             super(MainActivity.this);
 
-            /*
-             * =================================================
-             * HINTERGRUNDBILD
-             * =================================================
-             *
-             * Dein zentriertes Hintergrundbild.
-             */
-            background =
-                    BitmapFactory.decodeResource(
-                            getResources(),
-                            R.drawable.home_background_centered
-                    );
-
-            /*
-             * =================================================
-             * AUTO CHECK LOGO
-             * =================================================
-             */
-            logo =
-                    BitmapFactory.decodeResource(
-                            getResources(),
-                            R.drawable.auto_check_logo
-                    );
-
-            setLayerType(
-                    View.LAYER_TYPE_SOFTWARE,
-                    null
+            background = BitmapFactory.decodeResource(
+                    getResources(),
+                    R.drawable.home_background_centered
             );
 
-            postDelayed(
-                    this::startIntro,
-                    250
+            logo = BitmapFactory.decodeResource(
+                    getResources(),
+                    R.drawable.auto_check_logo
             );
+
+            setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+
+            postDelayed(this::startIntro, 250);
         }
 
-        /*
-         * =====================================================
-         * STARTANIMATION
-         * =====================================================
-         */
-
         private void startIntro() {
-
-            float width =
-                    getWidth();
+            float width = getWidth();
 
             if (width <= 0) {
-
-                postDelayed(
-                        this::startIntro,
-                        80
-                );
-
+                postDelayed(this::startIntro, 80);
                 return;
             }
 
-            /*
-             * Obere Reihe:
-             * von links nach rechts.
-             */
-            buttonOffset[0] =
-                    -width;
+            buttonOffset[0] = -width;
+            buttonOffset[1] = -width;
+            buttonOffset[2] = -width;
 
-            buttonOffset[1] =
-                    -width;
+            buttonOffset[3] = width;
+            buttonOffset[4] = width;
+            buttonOffset[5] = width;
 
-            buttonOffset[2] =
-                    -width;
-
-            /*
-             * Untere Reihe:
-             * von rechts nach links.
-             */
-            buttonOffset[3] =
-                    width;
-
-            buttonOffset[4] =
-                    width;
-
-            buttonOffset[5] =
-                    width;
-
-            /*
-             * Logo kommt von oben.
-             */
-            ObjectAnimator logoAnimation =
-                    ObjectAnimator.ofFloat(
-                            this,
-                            "logoOffset",
-                            -700f,
-                            0f
-                    );
-
-            logoAnimation.setDuration(
-                    1200
+            ObjectAnimator logoAnimation = ObjectAnimator.ofFloat(
+                    this, "logoOffset", -700f, 0f
             );
+            logoAnimation.setDuration(1200);
 
-            ArrayList<Animator> animations =
-                    new ArrayList<>();
+            ArrayList<Animator> animations = new ArrayList<>();
 
-            for (
-                    int i = 0;
-                    i < 6;
-                    i++
-            ) {
-
-                ObjectAnimator animation =
-                        ObjectAnimator.ofFloat(
-                                this,
-                                "buttonOffset" + i,
-                                buttonOffset[i],
-                                0f
-                        );
-
-                animation.setDuration(
-                        850
+            for (int i = 0; i < 6; i++) {
+                ObjectAnimator animation = ObjectAnimator.ofFloat(
+                        this,
+                        "buttonOffset" + i,
+                        buttonOffset[i],
+                        0f
                 );
-
-                animation.setStartDelay(
-                        (i % 3) * 100
-                );
-
-                animations.add(
-                        animation
-                );
+                animation.setDuration(850);
+                animation.setStartDelay((i % 3) * 100);
+                animations.add(animation);
             }
 
-            AnimatorSet buttonSet =
-                    new AnimatorSet();
+            AnimatorSet buttons = new AnimatorSet();
+            buttons.playTogether(animations);
 
-            buttonSet.playTogether(
-                    animations
-            );
-
-            AnimatorSet all =
-                    new AnimatorSet();
-
-            all.playTogether(
-                    logoAnimation,
-                    buttonSet
-            );
-
+            AnimatorSet all = new AnimatorSet();
+            all.playTogether(logoAnimation, buttons);
             all.start();
         }
 
-        /*
-         * =====================================================
-         * LOGO ANIMATION
-         * =====================================================
-         */
-
-        public void setLogoOffset(
-                float value
-        ) {
-
-            logoOffset =
-                    value;
-
+        public void setLogoOffset(float value) {
+            logoOffset = value;
             invalidate();
         }
 
         public float getLogoOffset() {
-
             return logoOffset;
         }
 
-        /*
-         * =====================================================
-         * BUTTON ANIMATION
-         * =====================================================
-         */
-
-        public void setButtonOffset0(
-                float value
-        ) {
-
-            buttonOffset[0] =
-                    value;
-
+        public void setButtonOffset0(float value) {
+            buttonOffset[0] = value;
             invalidate();
         }
 
         public float getButtonOffset0() {
-
             return buttonOffset[0];
         }
 
-        public void setButtonOffset1(
-                float value
-        ) {
-
-            buttonOffset[1] =
-                    value;
-
+        public void setButtonOffset1(float value) {
+            buttonOffset[1] = value;
             invalidate();
         }
 
         public float getButtonOffset1() {
-
             return buttonOffset[1];
         }
 
-        public void setButtonOffset2(
-                float value
-        ) {
-
-            buttonOffset[2] =
-                    value;
-
+        public void setButtonOffset2(float value) {
+            buttonOffset[2] = value;
             invalidate();
         }
 
         public float getButtonOffset2() {
-
             return buttonOffset[2];
         }
 
-        public void setButtonOffset3(
-                float value
-        ) {
-
-            buttonOffset[3] =
-                    value;
-
+        public void setButtonOffset3(float value) {
+            buttonOffset[3] = value;
             invalidate();
         }
 
         public float getButtonOffset3() {
-
             return buttonOffset[3];
         }
 
-        public void setButtonOffset4(
-                float value
-        ) {
-
-            buttonOffset[4] =
-                    value;
-
+        public void setButtonOffset4(float value) {
+            buttonOffset[4] = value;
             invalidate();
         }
 
         public float getButtonOffset4() {
-
             return buttonOffset[4];
         }
 
-        public void setButtonOffset5(
-                float value
-        ) {
-
-            buttonOffset[5] =
-                    value;
-
+        public void setButtonOffset5(float value) {
+            buttonOffset[5] = value;
             invalidate();
         }
 
         public float getButtonOffset5() {
-
             return buttonOffset[5];
         }
 
-        /*
-         * =====================================================
-         * HAUPTZEICHNUNG
-         * =====================================================
-         */
-
         @Override
-        protected void onDraw(
-                Canvas canvas
-        ) {
+        protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
 
-            super.onDraw(
-                    canvas
-            );
+            int width = getWidth();
+            int height = getHeight();
 
-            int width =
-                    getWidth();
+            canvas.drawColor(Color.BLACK);
 
-            int height =
-                    getHeight();
-
-            /*
-             * Grundfläche.
-             */
-            canvas.drawColor(
-                    Color.BLACK
-            );
-
-            /*
-             * Hintergrund.
-             */
-            drawCarImage(
-                    canvas,
-                    width,
-                    height
-            );
-
-            /*
-             * Logo.
-             */
-            drawLogo(
-                    canvas,
-                    width,
-                    height
-            );
-
-            /*
-             * Unterer schwarzer Bereich.
-             */
-            drawBlackArea(
-                    canvas,
-                    width,
-                    height
-            );
-
-            /*
-             * Buttons.
-             */
-            drawModernButtons(
-                    canvas,
-                    width,
-                    height
-            );
+            drawCarImage(canvas, width, height);
+            drawLogo(canvas, width, height);
+            drawBlackArea(canvas, width, height);
+            drawModernButtons(canvas, width, height);
         }
 
-        /*
-         * =====================================================
-         * LOGO
-         * =====================================================
-         */
-
-        private void drawLogo(
-                Canvas canvas,
-                int width,
-                int height
-        ) {
-
-            if (logo == null) {
-                return;
-            }
+        private void drawLogo(Canvas canvas, int width, int height) {
+            if (logo == null) return;
 
             canvas.save();
+            canvas.translate(0, logoOffset);
 
-            canvas.translate(
-                    0,
-                    logoOffset
-            );
+            float logoWidth = width * 0.97f;
+            float ratio = (float) logo.getHeight() / logo.getWidth();
+            float logoHeight = logoWidth * ratio;
 
-            float logoWidth =
-                    width * 0.97f;
+            float maxHeight = height * 0.245f;
 
-            float ratio =
-                    (float) logo.getHeight()
-                            / (float) logo.getWidth();
-
-            float logoHeight =
-                    logoWidth * ratio;
-
-            float maxHeight =
-                    height * 0.245f;
-
-            if (
-                    logoHeight >
-                            maxHeight
-            ) {
-
-                logoHeight =
-                        maxHeight;
-
-                logoWidth =
-                        logoHeight / ratio;
+            if (logoHeight > maxHeight) {
+                logoHeight = maxHeight;
+                logoWidth = logoHeight / ratio;
             }
 
-            float left =
-                    (
-                            width -
-                                    logoWidth
-                    ) / 2f;
+            float left = (width - logoWidth) / 2f;
 
-            /*
-             * =================================================
-             * LOGO WEITER UNTEN
-             * =================================================
-             */
-            float top =
-                    height * 0.055f;
+            // Logo bewusst weiter unten.
+            float top = height * 0.055f;
 
-            RectF destination =
-                    new RectF(
-                            left,
-                            top,
-                            left + logoWidth,
-                            top + logoHeight
-                    );
+            RectF destination = new RectF(
+                    left,
+                    top,
+                    left + logoWidth,
+                    top + logoHeight
+            );
 
             sourceRect.set(
                     0,
@@ -492,21 +251,10 @@ public class MainActivity extends Activity {
                     logo.getHeight()
             );
 
-            paint.setShader(
-                    null
-            );
-
-            paint.setAlpha(
-                    255
-            );
-
-            paint.setFilterBitmap(
-                    true
-            );
-
-            paint.setDither(
-                    true
-            );
+            paint.setShader(null);
+            paint.setAlpha(255);
+            paint.setFilterBitmap(true);
+            paint.setDither(true);
 
             canvas.drawBitmap(
                     logo,
@@ -518,32 +266,12 @@ public class MainActivity extends Activity {
             canvas.restore();
         }
 
-        /*
-         * =====================================================
-         * HINTERGRUNDBILD
-         * =====================================================
-         */
+        private void drawCarImage(Canvas canvas, int width, int height) {
+            if (background == null) return;
 
-        private void drawCarImage(
-                Canvas canvas,
-                int width,
-                int height
-        ) {
+            int imageWidth = background.getWidth();
+            int imageHeight = background.getHeight();
 
-            if (background == null) {
-                return;
-            }
-
-            int imageWidth =
-                    background.getWidth();
-
-            int imageHeight =
-                    background.getHeight();
-
-            /*
-             * Das komplette zentrierte Bild
-             * verwenden.
-             */
             sourceRect.set(
                     0,
                     0,
@@ -552,85 +280,36 @@ public class MainActivity extends Activity {
             );
 
             /*
-             * Bildbereich beginnt ganz oben.
+             * Der komplette Inhalt von home_background_centered
+             * bleibt sichtbar. Das Bild wird proportional skaliert
+             * und exakt horizontal zentriert.
              */
-            float areaTop =
-                    0f;
+            float imageTop = 0f;
+            float imageBottom = height * 0.685f;
+            float availableHeight = imageBottom - imageTop;
 
-            /*
-             * Bereich des oberen Bildteils.
-             */
-            float areaBottom =
-                    height * 0.705f;
-
-            float areaHeight =
-                    areaBottom -
-                            areaTop;
-
-            /*
-             * Bild proportional einpassen.
-             *
-             * Wichtig:
-             * Kein Cropping.
-             */
-            float scale =
-                    Math.min(
-                            (float) width /
-                                    imageWidth,
-                            areaHeight /
-                                    imageHeight
-                    );
-
-            float drawWidth =
-                    imageWidth *
-                            scale;
-
-            float drawHeight =
-                    imageHeight *
-                            scale;
-
-            /*
-             * Horizontal zentrieren.
-             */
-            float left =
-                    (
-                            width -
-                                    drawWidth
-                    ) / 2f;
-
-            /*
-             * Vertikal zentrieren.
-             */
-            float top =
-                    areaTop +
-                            (
-                                    areaHeight -
-                                            drawHeight
-                            ) / 2f;
-
-            RectF destination =
-                    new RectF(
-                            left,
-                            top,
-                            left + drawWidth,
-                            top + drawHeight
-                    );
-
-            paint.setShader(
-                    null
+            float scale = Math.min(
+                    (float) width / imageWidth,
+                    availableHeight / imageHeight
             );
 
-            paint.setAlpha(
-                    255
+            float drawWidth = imageWidth * scale;
+            float drawHeight = imageHeight * scale;
+
+            float left = (width - drawWidth) / 2f;
+            float top = imageTop + (availableHeight - drawHeight) / 2f;
+
+            RectF destination = new RectF(
+                    left,
+                    top,
+                    left + drawWidth,
+                    top + drawHeight
             );
 
-            paint.setFilterBitmap(
-                    true
-            );
-
-            paint.setDither(
-                    true
-            );
+            paint.setShader(null);
+            paint.setAlpha(255);
+            paint.setFilterBitmap(true);
+            paint.setDither(true);
 
             canvas.drawBitmap(
                     background,
@@ -640,40 +319,16 @@ public class MainActivity extends Activity {
             );
         }
 
-        /*
-         * =====================================================
-         * SCHWARZER BEREICH
-         * =====================================================
-         */
-
-        private void drawBlackArea(
-                Canvas canvas,
-                int width,
-                int height
-        ) {
-
+        private void drawBlackArea(Canvas canvas, int width, int height) {
             /*
-             * Wie im gewünschten
-             * unteren Layout.
+             * Schwarzer Bereich endet direkt vor dem Buttonbereich.
              */
-            float top =
-                    height * 0.635f;
+            float top = height * 0.685f;
 
-            paint.setShader(
-                    null
-            );
-
-            paint.setStyle(
-                    Paint.Style.FILL
-            );
-
-            paint.setColor(
-                    Color.BLACK
-            );
-
-            paint.setAlpha(
-                    255
-            );
+            paint.setShader(null);
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Color.BLACK);
+            paint.setAlpha(255);
 
             canvas.drawRect(
                     0,
@@ -684,99 +339,36 @@ public class MainActivity extends Activity {
             );
         }
 
-        /*
-         * =====================================================
-         * BUTTON-BEREICH
-         * =====================================================
-         */
+        private void drawModernButtons(Canvas canvas, int width, int height) {
+            float side = width * 0.018f;
+            float gap = width * 0.014f;
 
-        private void drawModernButtons(
-                Canvas canvas,
-                int width,
-                int height
-        ) {
-
-            /*
-             * Seitenabstand.
-             */
-            float side =
-                    width * 0.018f;
-
-            /*
-             * Abstand zwischen den Karten.
-             */
-            float gap =
-                    width * 0.014f;
-
-            /*
-             * Drei Karten nebeneinander.
-             */
             float cardWidth =
-                    (
-                            width
-                                    - side * 2f
-                                    - gap * 2f
-                    ) / 3f;
+                    (width - side * 2f - gap * 2f) / 3f;
 
-            /*
-             * Kartengröße wie im
-             * gewünschten zweiten Bild.
-             */
-            float cardHeight =
-                    height * 0.112f;
+            float cardHeight = height * 0.112f;
 
-            /*
-             * =================================================
-             * ERSTE REIHE
-             * =================================================
-             *
-             * Genau der gewünschte
-             * Buttonbereich.
-             */
-            float firstY =
-                    height * 0.690f;
+            // Buttonposition wie im gewünschten bisherigen Layout.
+            float firstY = height * 0.690f;
+            float secondY = height * 0.815f;
 
-            /*
-             * =================================================
-             * ZWEITE REIHE
-             * =================================================
-             */
-            float secondY =
-                    height * 0.815f;
-
-            for (
-                    int i = 0;
-                    i < 6;
-                    i++
-            ) {
-
-                int column =
-                        i % 3;
-
-                int row =
-                        i / 3;
+            for (int i = 0; i < 6; i++) {
+                int column = i % 3;
+                int row = i / 3;
 
                 float x =
                         side
-                                + column *
-                                (
-                                        cardWidth +
-                                                gap
-                                )
+                                + column * (cardWidth + gap)
                                 + buttonOffset[i];
 
-                float y =
-                        row == 0
-                                ? firstY
-                                : secondY;
+                float y = row == 0 ? firstY : secondY;
 
-                hit[i] =
-                        new RectF(
-                                x,
-                                y,
-                                x + cardWidth,
-                                y + cardHeight
-                        );
+                hit[i] = new RectF(
+                        x,
+                        y,
+                        x + cardWidth,
+                        y + cardHeight
+                );
 
                 drawModernCard(
                         canvas,
@@ -790,12 +382,6 @@ public class MainActivity extends Activity {
             }
         }
 
-        /*
-         * =====================================================
-         * BUTTON-KARTE
-         * =====================================================
-         */
-
         private void drawModernCard(
                 Canvas canvas,
                 float x,
@@ -805,50 +391,26 @@ public class MainActivity extends Activity {
                 int index,
                 boolean pressed
         ) {
-
-            RectF card =
-                    new RectF(
-                            x,
-                            y,
-                            x + width,
-                            y + height
-                    );
-
-            /*
-             * Grundfarben.
-             */
-            int baseColor =
-                    Color.rgb(
-                            13,
-                            17,
-                            23
-                    );
-
-            int topColor =
-                    Color.rgb(
-                            25,
-                            30,
-                            38
-                    );
-
-            /*
-             * Kartenverlauf.
-             */
-            paint.setStyle(
-                    Paint.Style.FILL
+            RectF card = new RectF(
+                    x,
+                    y,
+                    x + width,
+                    y + height
             );
 
-            paint.setShader(
-                    new LinearGradient(
-                            x,
-                            y,
-                            x + width,
-                            y + height,
-                            topColor,
-                            baseColor,
-                            Shader.TileMode.CLAMP
-                    )
-            );
+            int baseColor = Color.rgb(13, 17, 23);
+            int topColor = Color.rgb(25, 30, 38);
+
+            paint.setStyle(Paint.Style.FILL);
+            paint.setShader(new LinearGradient(
+                    x,
+                    y,
+                    x + width,
+                    y + height,
+                    topColor,
+                    baseColor,
+                    Shader.TileMode.CLAMP
+            ));
 
             paint.setShadowLayer(
                     14,
@@ -865,38 +427,18 @@ public class MainActivity extends Activity {
             );
 
             paint.clearShadowLayer();
-
-            paint.setShader(
-                    null
-            );
-
-            /*
-             * =================================================
-             * MEIN AUTO ROT
-             * =================================================
-             */
+            paint.setShader(null);
 
             if (index == 0) {
-
-                paint.setShader(
-                        new LinearGradient(
-                                x,
-                                y,
-                                x + width,
-                                y + height,
-                                Color.rgb(
-                                        110,
-                                        8,
-                                        14
-                                ),
-                                Color.rgb(
-                                        55,
-                                        5,
-                                        9
-                                ),
-                                Shader.TileMode.CLAMP
-                        )
-                );
+                paint.setShader(new LinearGradient(
+                        x,
+                        y,
+                        x + width,
+                        y + height,
+                        Color.rgb(110, 8, 14),
+                        Color.rgb(55, 5, 9),
+                        Shader.TileMode.CLAMP
+                ));
 
                 canvas.drawRoundRect(
                         card,
@@ -905,47 +447,17 @@ public class MainActivity extends Activity {
                         paint
                 );
 
-                paint.setShader(
-                        null
-                );
+                paint.setShader(null);
             }
 
-            /*
-             * =================================================
-             * RAHMEN
-             * =================================================
-             */
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(pressed ? 4f : 2f);
 
-            paint.setStyle(
-                    Paint.Style.STROKE
+            paint.setColor(
+                    index == 0
+                            ? Color.rgb(255, 45, 55)
+                            : Color.rgb(65, 73, 85)
             );
-
-            paint.setStrokeWidth(
-                    pressed
-                            ? 4f
-                            : 2f
-            );
-
-            if (index == 0) {
-
-                paint.setColor(
-                        Color.rgb(
-                                255,
-                                45,
-                                55
-                        )
-                );
-
-            } else {
-
-                paint.setColor(
-                        Color.rgb(
-                                65,
-                                73,
-                                85
-                        )
-                );
-            }
 
             canvas.drawRoundRect(
                     new RectF(
@@ -959,24 +471,11 @@ public class MainActivity extends Activity {
                     paint
             );
 
-            paint.setStyle(
-                    Paint.Style.FILL
-            );
+            paint.setStyle(Paint.Style.FILL);
 
-            /*
-             * =================================================
-             * ICON
-             * =================================================
-             */
-
-            float iconCenterX =
-                    x + width * 0.275f;
-
-            float iconCenterY =
-                    y + height * 0.38f;
-
-            float iconRadius =
-                    height * 0.235f;
+            float iconCenterX = x + width * 0.275f;
+            float iconCenterY = y + height * 0.38f;
+            float iconRadius = height * 0.235f;
 
             drawIconCircle(
                     canvas,
@@ -987,39 +486,20 @@ public class MainActivity extends Activity {
             );
 
             /*
-             * =================================================
-             * TITEL
-             * =================================================
-             *
-             * Diese Werte sind bewusst wieder
-             * kleiner wie im gewünschten Bild 2.
+             * Titel bewusst klein genug, damit auf allen drei
+             * Karten nichts abgeschnitten wird.
              */
-
-            paint.setShader(
-                    null
-            );
-
-            paint.setColor(
-                    Color.WHITE
-            );
-
-            paint.setTypeface(
-                    Typeface.create(
-                            "sans-serif",
-                            Typeface.BOLD
-                    )
-            );
-
-            paint.setTextAlign(
-                    Paint.Align.LEFT
-            );
-
-            paint.setTextSize(
-                    Math.min(
-                            width * 0.075f,
-                            26f
-                    )
-            );
+            paint.setShader(null);
+            paint.setColor(Color.WHITE);
+            paint.setTypeface(Typeface.create(
+                    "sans-serif",
+                    Typeface.BOLD
+            ));
+            paint.setTextAlign(Paint.Align.LEFT);
+            paint.setTextSize(Math.min(
+                    width * 0.075f,
+                    26f
+            ));
 
             canvas.drawText(
                     labels[index],
@@ -1028,33 +508,21 @@ public class MainActivity extends Activity {
                     paint
             );
 
-            /*
-             * =================================================
-             * UNTERTITEL
-             * =================================================
-             */
+            paint.setTypeface(Typeface.create(
+                    "sans-serif",
+                    Typeface.NORMAL
+            ));
 
-            paint.setTypeface(
-                    Typeface.create(
-                            "sans-serif",
-                            Typeface.NORMAL
-                    )
-            );
+            paint.setColor(Color.rgb(
+                    155,
+                    165,
+                    180
+            ));
 
-            paint.setColor(
-                    Color.rgb(
-                            155,
-                            165,
-                            180
-                    )
-            );
-
-            paint.setTextSize(
-                    Math.min(
-                            width * 0.047f,
-                            17f
-                    )
-            );
+            paint.setTextSize(Math.min(
+                    width * 0.047f,
+                    17f
+            ));
 
             canvas.drawText(
                     subtitles[index],
@@ -1063,20 +531,9 @@ public class MainActivity extends Activity {
                     paint
             );
 
-            /*
-             * =================================================
-             * PFEIL
-             * =================================================
-             */
-
-            float arrowX =
-                    x + width * 0.88f;
-
-            float arrowY =
-                    y + height * 0.57f;
-
-            float arrowRadius =
-                    height * 0.135f;
+            float arrowX = x + width * 0.88f;
+            float arrowY = y + height * 0.57f;
+            float arrowRadius = height * 0.135f;
 
             drawArrowButton(
                     canvas,
@@ -1087,12 +544,6 @@ public class MainActivity extends Activity {
             );
         }
 
-        /*
-         * =====================================================
-         * ICON-KREIS
-         * =====================================================
-         */
-
         private void drawIconCircle(
                 Canvas canvas,
                 float cx,
@@ -1100,27 +551,15 @@ public class MainActivity extends Activity {
                 float radius,
                 int index
         ) {
+            int color = getAccentColor(index);
 
-            int color =
-                    getAccentColor(
-                            index
-                    );
-
-            /*
-             * Hintergrundkreis.
-             */
-            paint.setStyle(
-                    Paint.Style.FILL
-            );
-
-            paint.setColor(
-                    Color.argb(
-                            45,
-                            Color.red(color),
-                            Color.green(color),
-                            Color.blue(color)
-                    )
-            );
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Color.argb(
+                    45,
+                    Color.red(color),
+                    Color.green(color),
+                    Color.blue(color)
+            ));
 
             canvas.drawCircle(
                     cx,
@@ -1129,25 +568,14 @@ public class MainActivity extends Activity {
                     paint
             );
 
-            /*
-             * Kreisrand.
-             */
-            paint.setStyle(
-                    Paint.Style.STROKE
-            );
-
-            paint.setStrokeWidth(
-                    1.5f
-            );
-
-            paint.setColor(
-                    Color.argb(
-                            150,
-                            Color.red(color),
-                            Color.green(color),
-                            Color.blue(color)
-                    )
-            );
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(1.5f);
+            paint.setColor(Color.argb(
+                    150,
+                    Color.red(color),
+                    Color.green(color),
+                    Color.blue(color)
+            ));
 
             canvas.drawCircle(
                     cx,
@@ -1156,165 +584,52 @@ public class MainActivity extends Activity {
                     paint
             );
 
-            /*
-             * Icon.
-             */
-            paint.setColor(
-                    color
-            );
+            paint.setColor(color);
+            paint.setStrokeWidth(4f);
+            paint.setStrokeCap(Paint.Cap.ROUND);
 
-            paint.setStrokeWidth(
-                    4f
-            );
-
-            paint.setStrokeCap(
-                    Paint.Cap.ROUND
-            );
-
-            float s =
-                    radius * 0.48f;
+            float s = radius * 0.48f;
 
             switch (index) {
-
                 case 0:
-
-                    drawCarIcon(
-                            canvas,
-                            cx,
-                            cy,
-                            s
-                    );
-
+                    drawCarIcon(canvas, cx, cy, s);
                     break;
-
                 case 1:
-
-                    drawWrenchIcon(
-                            canvas,
-                            cx,
-                            cy,
-                            s
-                    );
-
+                    drawWrenchIcon(canvas, cx, cy, s);
                     break;
-
                 case 2:
-
-                    drawCalendarIcon(
-                            canvas,
-                            cx,
-                            cy,
-                            s
-                    );
-
+                    drawCalendarIcon(canvas, cx, cy, s);
                     break;
-
                 case 3:
-
-                    drawMoneyIcon(
-                            canvas,
-                            cx,
-                            cy,
-                            s
-                    );
-
+                    drawMoneyIcon(canvas, cx, cy, s);
                     break;
-
                 case 4:
-
-                    drawStatisticsIcon(
-                            canvas,
-                            cx,
-                            cy,
-                            s
-                    );
-
+                    drawStatisticsIcon(canvas, cx, cy, s);
                     break;
-
                 case 5:
-
-                    drawGearIcon(
-                            canvas,
-                            cx,
-                            cy,
-                            s
-                    );
-
+                    drawGearIcon(canvas, cx, cy, s);
                     break;
             }
 
-            paint.setStyle(
-                    Paint.Style.FILL
-            );
+            paint.setStyle(Paint.Style.FILL);
         }
 
-        /*
-         * =====================================================
-         * AKZENTFARBEN
-         * =====================================================
-         */
-
-        private int getAccentColor(
-                int index
-        ) {
-
+        private int getAccentColor(int index) {
             switch (index) {
-
                 case 0:
-
-                    return Color.rgb(
-                            255,
-                            70,
-                            80
-                    );
-
+                    return Color.rgb(255, 70, 80);
                 case 1:
-
-                    return Color.rgb(
-                            0,
-                            150,
-                            255
-                    );
-
+                    return Color.rgb(0, 150, 255);
                 case 2:
-
-                    return Color.rgb(
-                            255,
-                            190,
-                            45
-                    );
-
+                    return Color.rgb(255, 190, 45);
                 case 3:
-
-                    return Color.rgb(
-                            65,
-                            230,
-                            145
-                    );
-
+                    return Color.rgb(65, 230, 145);
                 case 4:
-
-                    return Color.rgb(
-                            175,
-                            70,
-                            255
-                    );
-
+                    return Color.rgb(175, 70, 255);
                 default:
-
-                    return Color.rgb(
-                            225,
-                            230,
-                            238
-                    );
+                    return Color.rgb(225, 230, 238);
             }
         }
-
-        /*
-         * =====================================================
-         * AUTO ICON
-         * =====================================================
-         */
 
         private void drawCarIcon(
                 Canvas canvas,
@@ -1322,14 +637,12 @@ public class MainActivity extends Activity {
                 float cy,
                 float s
         ) {
-
-            RectF body =
-                    new RectF(
-                            cx - s,
-                            cy - s * 0.25f,
-                            cx + s,
-                            cy + s * 0.40f
-                    );
+            RectF body = new RectF(
+                    cx - s,
+                    cy - s * 0.25f,
+                    cx + s,
+                    cy + s * 0.40f
+            );
 
             canvas.drawRoundRect(
                     body,
@@ -1338,8 +651,7 @@ public class MainActivity extends Activity {
                     paint
             );
 
-            Path roof =
-                    new Path();
+            Path roof = new Path();
 
             roof.moveTo(
                     cx - s * 0.68f,
@@ -1361,10 +673,7 @@ public class MainActivity extends Activity {
                     cy - s * 0.25f
             );
 
-            canvas.drawPath(
-                    roof,
-                    paint
-            );
+            canvas.drawPath(roof, paint);
 
             canvas.drawCircle(
                     cx - s * 0.58f,
@@ -1381,19 +690,12 @@ public class MainActivity extends Activity {
             );
         }
 
-        /*
-         * =====================================================
-         * WERKZEUG ICON
-         * =====================================================
-         */
-
         private void drawWrenchIcon(
                 Canvas canvas,
                 float cx,
                 float cy,
                 float s
         ) {
-
             canvas.drawLine(
                     cx - s * 0.55f,
                     cy + s * 0.55f,
@@ -1409,8 +711,7 @@ public class MainActivity extends Activity {
                     paint
             );
 
-            Path wrench =
-                    new Path();
+            Path wrench = new Path();
 
             wrench.moveTo(
                     cx + s * 0.25f,
@@ -1438,26 +739,18 @@ public class MainActivity extends Activity {
             );
         }
 
-        /*
-         * =====================================================
-         * KALENDER ICON
-         * =====================================================
-         */
-
         private void drawCalendarIcon(
                 Canvas canvas,
                 float cx,
                 float cy,
                 float s
         ) {
-
-            RectF calendar =
-                    new RectF(
-                            cx - s * 0.78f,
-                            cy - s * 0.65f,
-                            cx + s * 0.78f,
-                            cy + s * 0.70f
-                    );
+            RectF calendar = new RectF(
+                    cx - s * 0.78f,
+                    cy - s * 0.65f,
+                    cx + s * 0.78f,
+                    cy + s * 0.70f
+            );
 
             canvas.drawRoundRect(
                     calendar,
@@ -1490,22 +783,10 @@ public class MainActivity extends Activity {
                     paint
             );
 
-            paint.setStyle(
-                    Paint.Style.FILL
-            );
+            paint.setStyle(Paint.Style.FILL);
 
-            for (
-                    int row = 0;
-                    row < 2;
-                    row++
-            ) {
-
-                for (
-                        int col = 0;
-                        col < 3;
-                        col++
-                ) {
-
+            for (int row = 0; row < 2; row++) {
+                for (int col = 0; col < 3; col++) {
                     canvas.drawCircle(
                             cx - s * 0.40f
                                     + col * s * 0.40f,
@@ -1517,16 +798,8 @@ public class MainActivity extends Activity {
                 }
             }
 
-            paint.setStyle(
-                    Paint.Style.STROKE
-            );
+            paint.setStyle(Paint.Style.STROKE);
         }
-
-        /*
-         * =====================================================
-         * GELD ICON
-         * =====================================================
-         */
 
         private void drawMoneyIcon(
                 Canvas canvas,
@@ -1534,13 +807,7 @@ public class MainActivity extends Activity {
                 float cy,
                 float s
         ) {
-
-            for (
-                    int i = 0;
-                    i < 3;
-                    i++
-            ) {
-
+            for (int i = 0; i < 3; i++) {
                 canvas.drawOval(
                         new RectF(
                                 cx - s * 0.72f,
@@ -1561,21 +828,10 @@ public class MainActivity extends Activity {
                     paint
             );
 
-            paint.setStyle(
-                    Paint.Style.FILL
-            );
-
-            paint.setTextAlign(
-                    Paint.Align.CENTER
-            );
-
-            paint.setTextSize(
-                    s * 0.55f
-            );
-
-            paint.setTypeface(
-                    Typeface.DEFAULT_BOLD
-            );
+            paint.setStyle(Paint.Style.FILL);
+            paint.setTextAlign(Paint.Align.CENTER);
+            paint.setTextSize(s * 0.55f);
+            paint.setTypeface(Typeface.DEFAULT_BOLD);
 
             canvas.drawText(
                     "€",
@@ -1584,16 +840,8 @@ public class MainActivity extends Activity {
                     paint
             );
 
-            paint.setStyle(
-                    Paint.Style.STROKE
-            );
+            paint.setStyle(Paint.Style.STROKE);
         }
-
-        /*
-         * =====================================================
-         * STATISTIK ICON
-         * =====================================================
-         */
 
         private void drawStatisticsIcon(
                 Canvas canvas,
@@ -1601,10 +849,7 @@ public class MainActivity extends Activity {
                 float cy,
                 float s
         ) {
-
-            paint.setStrokeWidth(
-                    5f
-            );
+            paint.setStrokeWidth(5f);
 
             canvas.drawRoundRect(
                     new RectF(
@@ -1643,19 +888,12 @@ public class MainActivity extends Activity {
             );
         }
 
-        /*
-         * =====================================================
-         * EINSTELLUNGEN ICON
-         * =====================================================
-         */
-
         private void drawGearIcon(
                 Canvas canvas,
                 float cx,
                 float cy,
                 float s
         ) {
-
             canvas.drawCircle(
                     cx,
                     cy,
@@ -1670,37 +908,27 @@ public class MainActivity extends Activity {
                     paint
             );
 
-            for (
-                    int i = 0;
-                    i < 8;
-                    i++
-            ) {
-
-                double angle =
-                        i * Math.PI / 4.0;
+            for (int i = 0; i < 8; i++) {
+                double angle = i * Math.PI / 4.0;
 
                 float x1 =
                         cx
-                                + (float)
-                                Math.cos(angle)
+                                + (float) Math.cos(angle)
                                 * s * 0.72f;
 
                 float y1 =
                         cy
-                                + (float)
-                                Math.sin(angle)
+                                + (float) Math.sin(angle)
                                 * s * 0.72f;
 
                 float x2 =
                         cx
-                                + (float)
-                                Math.cos(angle)
+                                + (float) Math.cos(angle)
                                 * s * 0.95f;
 
                 float y2 =
                         cy
-                                + (float)
-                                Math.sin(angle)
+                                + (float) Math.sin(angle)
                                 * s * 0.95f;
 
                 canvas.drawLine(
@@ -1713,12 +941,6 @@ public class MainActivity extends Activity {
             }
         }
 
-        /*
-         * =====================================================
-         * PFEIL
-         * =====================================================
-         */
-
         private void drawArrowButton(
                 Canvas canvas,
                 float cx,
@@ -1726,27 +948,16 @@ public class MainActivity extends Activity {
                 float radius,
                 int index
         ) {
+            int accent = getAccentColor(index);
 
-            int accent =
-                    getAccentColor(
-                            index
-                    );
+            paint.setStyle(Paint.Style.FILL);
 
-            /*
-             * Kreisfläche.
-             */
-            paint.setStyle(
-                    Paint.Style.FILL
-            );
-
-            paint.setColor(
-                    Color.argb(
-                            45,
-                            Color.red(accent),
-                            Color.green(accent),
-                            Color.blue(accent)
-                    )
-            );
+            paint.setColor(Color.argb(
+                    45,
+                    Color.red(accent),
+                    Color.green(accent),
+                    Color.blue(accent)
+            ));
 
             canvas.drawCircle(
                     cx,
@@ -1755,24 +966,13 @@ public class MainActivity extends Activity {
                     paint
             );
 
-            /*
-             * Kreisrand.
-             */
-            paint.setStyle(
-                    Paint.Style.STROKE
-            );
-
-            paint.setStrokeWidth(
-                    1.5f
-            );
-
-            paint.setColor(
-                    Color.rgb(
-                            55,
-                            65,
-                            78
-                    )
-            );
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(1.5f);
+            paint.setColor(Color.rgb(
+                    55,
+                    65,
+                    78
+            ));
 
             canvas.drawCircle(
                     cx,
@@ -1781,20 +981,9 @@ public class MainActivity extends Activity {
                     paint
             );
 
-            /*
-             * Pfeil.
-             */
-            paint.setColor(
-                    Color.WHITE
-            );
-
-            paint.setStrokeWidth(
-                    3.5f
-            );
-
-            paint.setStrokeCap(
-                    Paint.Cap.ROUND
-            );
+            paint.setColor(Color.WHITE);
+            paint.setStrokeWidth(3.5f);
+            paint.setStrokeCap(Paint.Cap.ROUND);
 
             canvas.drawLine(
                     cx - radius * 0.25f,
@@ -1820,104 +1009,54 @@ public class MainActivity extends Activity {
                     paint
             );
 
-            paint.setStyle(
-                    Paint.Style.FILL
-            );
+            paint.setStyle(Paint.Style.FILL);
         }
 
-        /*
-         * =====================================================
-         * TOUCH / NAVIGATION
-         * =====================================================
-         */
-
         @Override
-        public boolean onTouchEvent(
-                MotionEvent event
-        ) {
+        public boolean onTouchEvent(MotionEvent event) {
 
-            /*
-             * -------------------------------------------------
-             * TOUCH DOWN
-             * -------------------------------------------------
-             */
-            if (
-                    event.getAction()
-                            ==
-                            MotionEvent.ACTION_DOWN
-            ) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
 
-                pressedIndex =
-                        -1;
+                pressedIndex = -1;
 
-                for (
-                        int i = 0;
-                        i < 6;
-                        i++
-                ) {
-
+                for (int i = 0; i < 6; i++) {
                     if (
                             hit[i] != null
-                                    &&
-                            hit[i].contains(
+                                    && hit[i].contains(
                                     event.getX(),
                                     event.getY()
                             )
-                                    &&
-                            Math.abs(
+                                    && Math.abs(
                                     buttonOffset[i]
-                            )
-                                    <
-                                    getWidth() / 2f
+                            ) < getWidth() / 2f
                     ) {
-
-                        pressedIndex =
-                                i;
-
+                        pressedIndex = i;
                         break;
                     }
                 }
 
                 invalidate();
-
                 return true;
             }
 
-            /*
-             * -------------------------------------------------
-             * TOUCH UP
-             * -------------------------------------------------
-             */
-            if (
-                    event.getAction()
-                            ==
-                            MotionEvent.ACTION_UP
-            ) {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
 
-                int selected =
-                        pressedIndex;
-
-                pressedIndex =
-                        -1;
-
+                int selected = pressedIndex;
+                pressedIndex = -1;
                 invalidate();
 
                 if (
                         selected >= 0
-                                &&
-                        hit[selected] != null
-                                &&
-                        hit[selected].contains(
+                                && hit[selected] != null
+                                && hit[selected].contains(
                                 event.getX(),
                                 event.getY()
                         )
                 ) {
-
-                    Intent intent =
-                            new Intent(
-                                    MainActivity.this,
-                                    SubmenuActivity.class
-                            );
+                    Intent intent = new Intent(
+                            MainActivity.this,
+                            SubmenuActivity.class
+                    );
 
                     intent.putExtra(
                             "title",
@@ -1929,9 +1068,7 @@ public class MainActivity extends Activity {
                             subtitles[selected]
                     );
 
-                    startActivity(
-                            intent
-                    );
+                    startActivity(intent);
                 }
 
                 return true;
