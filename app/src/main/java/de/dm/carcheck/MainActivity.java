@@ -166,7 +166,7 @@ public class MainActivity extends Activity {
                 return;
             }
 
-            float outerBottomMargin = dp(10f);
+            float outerBottomMargin = dp(6f);
             float targetImageWidth = width * 0.825f;
             float maxImageHeight = height * 0.735f;
             float drawWidth = targetImageWidth;
@@ -229,13 +229,13 @@ public class MainActivity extends Activity {
                 logoRect.setEmpty();
             }
 
-            float cardAreaTop = imageBottom + dp(7f);
+            float cardAreaTop = imageBottom + dp(2f);
             float cardAreaBottom = height - outerBottomMargin;
             float availableHeight =
                     Math.max(dp(120f), cardAreaBottom - cardAreaTop);
 
             horizontalGap = dp(11f);
-            verticalGap = dp(20f);
+            verticalGap = dp(8f);
 
             cardWidth =
                     (drawWidth - horizontalGap * 2f) / 3f;
@@ -310,8 +310,8 @@ public class MainActivity extends Activity {
                     logoOffset,
                     0f
             );
-            logoAnimation.setDuration(850);
-            logoAnimation.setStartDelay(80);
+            logoAnimation.setDuration(2500);
+            logoAnimation.setStartDelay(0);
 
             ArrayList<Animator> cardAnimations = new ArrayList<>();
 
@@ -323,12 +323,10 @@ public class MainActivity extends Activity {
                         0f
                 );
 
-                animation.setDuration(650);
-                animation.setStartDelay(
-                        120L
-                                + (i % 3) * 85L
-                                + (i / 3) * 90L
-                );
+                // Alle Karten fahren gleichzeitig ein.
+                // Linke 3 von links, rechte 3 von rechts.
+                animation.setDuration(2500);
+                animation.setStartDelay(0);
 
                 cardAnimations.add(animation);
             }
