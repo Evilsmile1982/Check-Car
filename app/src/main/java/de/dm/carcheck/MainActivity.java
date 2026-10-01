@@ -27,7 +27,7 @@ import java.util.ArrayList;
 /**
  * Auto Check - Startseite
  *
- * 6 Hauptbuttons:
+ * 6 Hauptzeilen:
  * 1. Mein Auto
  * 2. Reparaturen
  * 3. Pickerl/TÜV
@@ -237,46 +237,37 @@ public class MainActivity extends Activity {
             horizontalGap = dp(11f);
             verticalGap = dp(8f);
 
-            cardWidth =
-                    (drawWidth - horizontalGap * 2f) / 3f;
+            // Statt 3 Spalten x 2 Reihen gibt es jetzt 6 horizontale Zeilen.
+            // Die Zeilen füllen den kompletten Bereich zwischen Bild und
+            // unterer Handy-/Navigationsleiste aus.
+            cardWidth = drawWidth;
 
             float calculatedCardHeight =
-                    (availableHeight - verticalGap) / 2f;
+                    (availableHeight - verticalGap * 5f) / 6f;
 
-            cardHeight = clamp(
-                    calculatedCardHeight,
-                    dp(130f),
-                    dp(190f)
-            );
+            cardHeight = Math.max(dp(72f), calculatedCardHeight);
 
+            // Die erste Zeile beginnt direkt unter dem Bild.
+            firstRowY = cardAreaTop;
+
+            // Falls durch Rundung noch ein kleiner Überlauf entsteht,
+            // wird die Zeilenhöhe so angepasst, dass alles bis unten passt.
             float maxCardHeight =
-                    (availableHeight - verticalGap) / 2f;
+                    (availableHeight - verticalGap * 5f) / 6f;
 
             if (cardHeight > maxCardHeight) {
                 cardHeight = maxCardHeight;
-            }
-
-            firstRowY = cardAreaTop;
-            secondRowY = firstRowY + cardHeight + verticalGap;
-
-            float requiredBottom = secondRowY + cardHeight;
-            if (requiredBottom > cardAreaBottom) {
-                float correction = requiredBottom - cardAreaBottom;
-                firstRowY -= correction;
-                secondRowY -= correction;
             }
         }
 
         private void prepareIntroPositions() {
             float width = getWidth();
 
-            buttonOffset[0] = -width;
-            buttonOffset[1] = -width;
-            buttonOffset[2] = -width;
-
-            buttonOffset[3] = width;
-            buttonOffset[4] = width;
-            buttonOffset[5] = width;
+            // Die 6 Zeilen fahren abwechselnd von links und rechts ein:
+            // 1. Zeile links, 2. Zeile rechts, 3. Zeile links, usw.
+            for (int i = 0; i < 6; i++) {
+                buttonOffset[i] = (i % 2 == 0) ? -width : width;
+            }
 
             logoOffset = -Math.max(
                     180f,
@@ -323,8 +314,9 @@ public class MainActivity extends Activity {
                         0f
                 );
 
-                // Alle Karten fahren gleichzeitig ein.
-                // Linke 3 von links, rechte 3 von rechts.
+                // Abwechselnd von links und rechts.
+                // Alle sechs Animationen starten gleichzeitig, sodass
+                // die Bewegungen schön versetzt durch die Richtung wirken.
                 animation.setDuration(2500);
                 animation.setStartDelay(0);
 
@@ -434,11 +426,10 @@ public class MainActivity extends Activity {
 
         private void drawCards(Canvas canvas) {
             for (int i = 0; i < 6; i++) {
-                int column = i % 3;
-                int row = i / 3;
 
-                float x = imageLeft + column * (cardWidth + horizontalGap);
-                float y = row == 0 ? firstRowY : secondRowY;
+                // Jede Funktion bekommt ihre eigene horizontale Zeile.
+                float x = imageLeft;
+                float y = firstRowY + i * (cardHeight + verticalGap);
 
                 float offset = buttonOffset[i];
 
