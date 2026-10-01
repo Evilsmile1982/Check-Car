@@ -10,10 +10,11 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowInsets;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -21,7 +22,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
+import android.graphics.drawable.GradientDrawable;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -32,58 +33,32 @@ import java.util.List;
 
 public class SubmenuActivity extends Activity {
 
-    // ============================================================
-    // KONSTANTEN
-    // ============================================================
-
     private static final int MAX_VEHICLES = 5;
     private static final int REQUEST_PICK_IMAGE = 2001;
 
-    private static final int BG_COLOR =
-            Color.rgb(3, 5, 9);
+    private static final int BG_COLOR = Color.rgb(3, 5, 9);
+    private static final int PANEL_COLOR = Color.rgb(10, 13, 18);
+    private static final int FIELD_COLOR = Color.rgb(12, 15, 20);
+    private static final int BORDER_COLOR = Color.rgb(65, 70, 80);
 
-    private static final int PANEL_COLOR =
-            Color.rgb(10, 13, 18);
+    private static final int RED = Color.rgb(175, 5, 15);
+    private static final int RED_BORDER = Color.rgb(235, 25, 35);
 
-    private static final int FIELD_COLOR =
-            Color.rgb(12, 15, 20);
-
-    private static final int BORDER_COLOR =
-            Color.rgb(65, 70, 80);
-
-    private static final int RED =
-            Color.rgb(175, 5, 15);
-
-    private static final int RED_BORDER =
-            Color.rgb(235, 25, 35);
-
-    private static final int WHITE =
-            Color.rgb(245, 245, 248);
-
-    private static final int GREY =
-            Color.rgb(165, 170, 180);
-
-
-    // ============================================================
-    // DATEN
-    // ============================================================
+    private static final int WHITE = Color.rgb(245, 245, 248);
+    private static final int GREY = Color.rgb(165, 170, 180);
 
     private SharedPreferences preferences;
 
-    private final List<Vehicle> vehicles =
-            new ArrayList<>();
+    private final List<Vehicle> vehicles = new ArrayList<>();
 
     private int currentVehicle = 0;
 
     private String pageTitle = "";
 
-
-    // ============================================================
-    // UI
-    // ============================================================
+    private ScrollView scrollView;
+    private LinearLayout root;
 
     private ImageView vehicleImage;
-
     private TextView vehicleNumber;
 
     private EditText brandInput;
@@ -94,7 +69,6 @@ public class SubmenuActivity extends Activity {
 
     private Button previousButton;
     private Button nextButton;
-
     private Button saveButton;
     private Button deleteButton;
 
@@ -107,85 +81,48 @@ public class SubmenuActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        /*
-         * Vollbild.
-         *
-         * Die Navigationsleiste des Handys bleibt sichtbar.
-         * Dadurch kann der Benutzer weiterhin Android-Navigation
-         * benutzen.
-         */
-
         getWindow().setStatusBarColor(Color.BLACK);
         getWindow().setNavigationBarColor(Color.BLACK);
 
         getWindow().setFlags(
-                android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
         );
 
-        pageTitle =
-                getIntent().getStringExtra("title");
+        pageTitle = getIntent().getStringExtra("title");
 
         if (pageTitle == null) {
             pageTitle = "";
         }
 
-        preferences =
-                getSharedPreferences(
-                        "auto_check_data",
-                        MODE_PRIVATE
-                );
+        preferences = getSharedPreferences(
+                "auto_check_data",
+                MODE_PRIVATE
+        );
 
         loadVehicles();
 
-        /*
-         * Der erste Bereich, den wir jetzt vollständig bauen,
-         * ist MEIN AUTO.
-         */
-
         if (pageTitle.equalsIgnoreCase("MEIN AUTO")) {
-
             createVehiclePage();
-
         } else {
-
             createPlaceholderPage();
         }
     }
 
 
     // ============================================================
-    // MEIN AUTO SEITE
+    // MEIN AUTO
     // ============================================================
 
     private void createVehiclePage() {
 
-        /*
-         * Haupt-ScrollView.
-         *
-         * Falls ein Gerät kleiner ist, kann der Benutzer scrollen.
-         * Auf normalen Geräten wird der komplette Bereich schön
-         * mittig angezeigt.
-         */
-
-        ScrollView scrollView =
-                new ScrollView(this);
+        scrollView = new ScrollView(this);
 
         scrollView.setFillViewport(true);
-
-        scrollView.setBackgroundColor(
-                BG_COLOR
-        );
-
+        scrollView.setBackgroundColor(BG_COLOR);
         scrollView.setClipToPadding(false);
 
-
-        // --------------------------------------------------------
-        // Hauptcontainer
-        // --------------------------------------------------------
-
-        LinearLayout root =
-                new LinearLayout(this);
+        root = new LinearLayout(this);
 
         root.setOrientation(
                 LinearLayout.VERTICAL
@@ -195,15 +132,21 @@ public class SubmenuActivity extends Activity {
                 Gravity.CENTER_HORIZONTAL
         );
 
-        root.setPadding(
-                dp(14),
-                dp(24),
-                dp(14),
-                dp(30)
-        );
-
         root.setBackgroundColor(
                 BG_COLOR
+        );
+
+        /*
+         * Oberer Abstand.
+         *
+         * Unten wird später automatisch der Abstand
+         * für die Android-Navigationsleiste ergänzt.
+         */
+        root.setPadding(
+                dp(14),
+                dp(22),
+                dp(14),
+                dp(35)
         );
 
 
@@ -211,13 +154,49 @@ public class SubmenuActivity extends Activity {
                 root,
                 new ScrollView.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
+                        ViewGroup.LayoutParams.WRAP_CONTENT
                 )
         );
 
 
         // ========================================================
-        // OBERER BEREICH
+        // ANDROID NAVIGATIONSLEISTE BERÜCKSICHTIGEN
+        // ========================================================
+
+        scrollView.setOnApplyWindowInsetsListener(
+                (view, insets) -> {
+
+                    int bottomInset = 0;
+
+                    if (android.os.Build.VERSION.SDK_INT >= 20) {
+                        bottomInset =
+                                insets.getSystemWindowInsetBottom();
+                    }
+
+                    /*
+                     * Mindestabstand 35dp.
+                     *
+                     * Dazu kommt der echte Abstand der
+                     * Android-Navigationsleiste.
+                     */
+                    int finalBottom =
+                            dp(35) + bottomInset;
+
+
+                    root.setPadding(
+                            dp(14),
+                            dp(22),
+                            dp(14),
+                            finalBottom
+                    );
+
+                    return insets;
+                }
+        );
+
+
+        // ========================================================
+        // TITEL
         // ========================================================
 
         TextView title =
@@ -246,16 +225,12 @@ public class SubmenuActivity extends Activity {
                 Gravity.CENTER
         );
 
-        title.setIncludeFontPadding(
-                true
-        );
-
 
         root.addView(
                 title,
                 new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
-                        dp(48)
+                        dp(50)
                 )
         );
 
@@ -290,11 +265,12 @@ public class SubmenuActivity extends Activity {
         LinearLayout.LayoutParams numberParams =
                 new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
-                        dp(30)
+                        dp(32)
                 );
 
         numberParams.bottomMargin =
-                dp(10);
+                dp(12);
+
 
         root.addView(
                 vehicleNumber,
@@ -323,9 +299,9 @@ public class SubmenuActivity extends Activity {
 
         vehicleImage.setColorFilter(
                 Color.rgb(
-                        105,
-                        110,
-                        120
+                        90,
+                        95,
+                        105
                 )
         );
 
@@ -333,11 +309,12 @@ public class SubmenuActivity extends Activity {
         LinearLayout.LayoutParams imageParams =
                 new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
-                        dp(250)
+                        dp(245)
                 );
 
         imageParams.bottomMargin =
                 dp(8);
+
 
         root.addView(
                 vehicleImage,
@@ -351,7 +328,7 @@ public class SubmenuActivity extends Activity {
 
 
         // ========================================================
-        // FOTO-TEXT
+        // FOTO TEXT
         // ========================================================
 
         TextView photoText =
@@ -388,6 +365,7 @@ public class SubmenuActivity extends Activity {
         photoTextParams.bottomMargin =
                 dp(12);
 
+
         root.addView(
                 photoText,
                 photoTextParams
@@ -400,63 +378,34 @@ public class SubmenuActivity extends Activity {
 
 
         // ========================================================
-        // DATENFELDER
+        // FELDER
         // ========================================================
 
         brandInput =
-                createInput(
-                        "Marke"
-                );
+                createInput("Marke");
 
         modelInput =
-                createInput(
-                        "Typ / Modell"
-                );
+                createInput("Typ / Modell");
 
         engineInput =
-                createInput(
-                        "Motor"
-                );
+                createInput("Motor");
 
         yearInput =
-                createInput(
-                        "Baujahr"
-                );
+                createInput("Baujahr");
 
         kilometersInput =
-                createInput(
-                        "Kilometerstand"
-                );
+                createInput("Kilometerstand");
 
 
-        addField(
-                root,
-                brandInput
-        );
-
-        addField(
-                root,
-                modelInput
-        );
-
-        addField(
-                root,
-                engineInput
-        );
-
-        addField(
-                root,
-                yearInput
-        );
-
-        addField(
-                root,
-                kilometersInput
-        );
+        addField(root, brandInput);
+        addField(root, modelInput);
+        addField(root, engineInput);
+        addField(root, yearInput);
+        addField(root, kilometersInput);
 
 
         // ========================================================
-        // FAHRZEUG NAVIGATION
+        // NAVIGATION
         // ========================================================
 
         LinearLayout navigation =
@@ -482,27 +431,23 @@ public class SubmenuActivity extends Activity {
                 );
 
 
-        LinearLayout.LayoutParams navButtonParams =
-                new LinearLayout.LayoutParams(
-                        0,
-                        dp(52),
-                        1f
-                );
-
-
         navigation.addView(
                 previousButton,
-                navButtonParams
+                new LinearLayout.LayoutParams(
+                        0,
+                        dp(58),
+                        1f
+                )
         );
 
 
-        View navigationGap =
+        View gap =
                 new View(this);
 
         navigation.addView(
-                navigationGap,
+                gap,
                 new LinearLayout.LayoutParams(
-                        dp(8),
+                        dp(10),
                         1
                 )
         );
@@ -512,7 +457,7 @@ public class SubmenuActivity extends Activity {
                 nextButton,
                 new LinearLayout.LayoutParams(
                         0,
-                        dp(52),
+                        dp(58),
                         1f
                 )
         );
@@ -521,11 +466,11 @@ public class SubmenuActivity extends Activity {
         LinearLayout.LayoutParams navigationParams =
                 new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
-                        dp(52)
+                        dp(58)
                 );
 
         navigationParams.topMargin =
-                dp(10);
+                dp(12);
 
         navigationParams.bottomMargin =
                 dp(12);
@@ -547,12 +492,19 @@ public class SubmenuActivity extends Activity {
                 );
 
 
-        root.addView(
-                saveButton,
+        LinearLayout.LayoutParams saveParams =
                 new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
-                        dp(54)
-                )
+                        dp(58)
+                );
+
+        saveParams.bottomMargin =
+                dp(10);
+
+
+        root.addView(
+                saveButton,
+                saveParams
         );
 
 
@@ -574,14 +526,11 @@ public class SubmenuActivity extends Activity {
         LinearLayout.LayoutParams deleteParams =
                 new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
-                        dp(48)
+                        dp(52)
                 );
 
-        deleteParams.topMargin =
-                dp(8);
-
         deleteParams.bottomMargin =
-                dp(5);
+                dp(10);
 
 
         root.addView(
@@ -608,25 +557,23 @@ public class SubmenuActivity extends Activity {
         );
 
 
-        // ========================================================
-        // SET CONTENT
-        // ========================================================
-
         setContentView(
                 scrollView
         );
 
 
-        // ========================================================
-        // AKTUELLES FAHRZEUG LADEN
-        // ========================================================
+        /*
+         * Insets einmal direkt anfordern.
+         */
+        scrollView.requestApplyInsets();
+
 
         updateVehicleScreen();
     }
 
 
     // ============================================================
-    // INPUT FELD
+    // INPUT
     // ============================================================
 
     private EditText createInput(
@@ -636,9 +583,7 @@ public class SubmenuActivity extends Activity {
         EditText input =
                 new EditText(this);
 
-        input.setHint(
-                hint
-        );
+        input.setHint(hint);
 
         input.setHintTextColor(
                 Color.rgb(
@@ -665,9 +610,9 @@ public class SubmenuActivity extends Activity {
         );
 
         input.setPadding(
-                dp(14),
+                dp(16),
                 0,
-                dp(14),
+                dp(16),
                 0
         );
 
@@ -691,11 +636,11 @@ public class SubmenuActivity extends Activity {
         LinearLayout.LayoutParams params =
                 new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
-                        dp(52)
+                        dp(58)
                 );
 
         params.bottomMargin =
-                dp(7);
+                dp(8);
 
         parent.addView(
                 field,
@@ -705,15 +650,14 @@ public class SubmenuActivity extends Activity {
 
 
     // ============================================================
-    // FAHRZEUG WEITER
+    // WEITER
     // ============================================================
 
     private void nextVehicle() {
 
         saveFieldsOnly();
 
-        if (currentVehicle <
-                MAX_VEHICLES - 1) {
+        if (currentVehicle < MAX_VEHICLES - 1) {
 
             currentVehicle++;
 
@@ -731,7 +675,7 @@ public class SubmenuActivity extends Activity {
 
 
     // ============================================================
-    // FAHRZEUG ZURÜCK
+    // ZURÜCK
     // ============================================================
 
     private void previousVehicle() {
@@ -756,15 +700,13 @@ public class SubmenuActivity extends Activity {
 
 
     // ============================================================
-    // BILDSCHIRM AKTUALISIEREN
+    // SCREEN AKTUALISIEREN
     // ============================================================
 
     private void updateVehicleScreen() {
 
         Vehicle vehicle =
-                getVehicle(
-                        currentVehicle
-                );
+                getVehicle(currentVehicle);
 
 
         vehicleNumber.setText(
@@ -799,14 +741,8 @@ public class SubmenuActivity extends Activity {
         );
 
 
-        loadVehiclePhoto(
-                vehicle
-        );
+        loadVehiclePhoto(vehicle);
 
-
-        // --------------------------------------------------------
-        // Navigation aktivieren/deaktivieren
-        // --------------------------------------------------------
 
         previousButton.setEnabled(
                 currentVehicle > 0
@@ -820,13 +756,11 @@ public class SubmenuActivity extends Activity {
 
 
         nextButton.setEnabled(
-                currentVehicle <
-                        MAX_VEHICLES - 1
+                currentVehicle < MAX_VEHICLES - 1
         );
 
         nextButton.setAlpha(
-                currentVehicle <
-                        MAX_VEHICLES - 1
+                currentVehicle < MAX_VEHICLES - 1
                         ? 1.0f
                         : 0.35f
         );
@@ -868,7 +802,7 @@ public class SubmenuActivity extends Activity {
 
 
     // ============================================================
-    // FOTO ZURÜCKBEKOMMEN
+    // FOTO RESULT
     // ============================================================
 
     @Override
@@ -886,11 +820,9 @@ public class SubmenuActivity extends Activity {
 
 
         if (
-                requestCode ==
-                        REQUEST_PICK_IMAGE
+                requestCode == REQUEST_PICK_IMAGE
                         &&
-                resultCode ==
-                        RESULT_OK
+                resultCode == RESULT_OK
                         &&
                 data != null
                         &&
@@ -914,21 +846,20 @@ public class SubmenuActivity extends Activity {
 
 
             Vehicle vehicle =
-                    getVehicle(
-                            currentVehicle
-                    );
+                    getVehicle(currentVehicle);
 
 
             vehicle.photo =
                     uri.toString();
 
 
+            vehicle.exists =
+                    true;
+
+
             saveVehicles();
 
-
-            loadVehiclePhoto(
-                    vehicle
-            );
+            loadVehiclePhoto(vehicle);
 
 
             Toast.makeText(
@@ -941,7 +872,7 @@ public class SubmenuActivity extends Activity {
 
 
     // ============================================================
-    // FOTO ANZEIGEN
+    // FOTO LADEN
     // ============================================================
 
     private void loadVehiclePhoto(
@@ -952,23 +883,12 @@ public class SubmenuActivity extends Activity {
 
 
         if (
-                vehicle.photo ==
-                        null
+                vehicle.photo == null
                         ||
                 vehicle.photo.isEmpty()
         ) {
 
-            vehicleImage.setImageResource(
-                    android.R.drawable.ic_menu_camera
-            );
-
-            vehicleImage.setColorFilter(
-                    Color.rgb(
-                            90,
-                            95,
-                            105
-                    )
-            );
+            showDefaultPhoto();
 
             return;
         }
@@ -989,9 +909,7 @@ public class SubmenuActivity extends Activity {
 
             Bitmap bitmap =
                     BitmapFactory
-                            .decodeStream(
-                                    stream
-                            );
+                            .decodeStream(stream);
 
 
             if (stream != null) {
@@ -1001,13 +919,11 @@ public class SubmenuActivity extends Activity {
 
             if (bitmap != null) {
 
-                vehicleImage
-                        .setImageBitmap(
-                                bitmap
-                        );
+                vehicleImage.setImageBitmap(
+                        bitmap
+                );
 
-                vehicleImage
-                        .clearColorFilter();
+                vehicleImage.clearColorFilter();
 
             } else {
 
@@ -1042,15 +958,13 @@ public class SubmenuActivity extends Activity {
 
 
     // ============================================================
-    // AKTUELLE FELDER SPEICHERN
+    // FELDER SPEICHERN
     // ============================================================
 
     private void saveFieldsOnly() {
 
         Vehicle vehicle =
-                getVehicle(
-                        currentVehicle
-                );
+                getVehicle(currentVehicle);
 
 
         vehicle.brand =
@@ -1112,7 +1026,7 @@ public class SubmenuActivity extends Activity {
 
 
     // ============================================================
-    // FAHRZEUG SPEICHERN
+    // SPEICHERN
     // ============================================================
 
     private void saveCurrentVehicle() {
@@ -1131,7 +1045,7 @@ public class SubmenuActivity extends Activity {
 
 
     // ============================================================
-    // FAHRZEUG LÖSCHEN
+    // LÖSCHEN
     // ============================================================
 
     private void confirmDeleteVehicle() {
@@ -1143,7 +1057,7 @@ public class SubmenuActivity extends Activity {
                 )
 
                 .setMessage(
-                        "Das Fahrzeug "
+                        "Fahrzeug "
                                 +
                         (currentVehicle + 1)
                                 +
@@ -1160,9 +1074,7 @@ public class SubmenuActivity extends Activity {
                         (dialog, which) -> {
 
                             Vehicle vehicle =
-                                    getVehicle(
-                                            currentVehicle
-                                    );
+                                    getVehicle(currentVehicle);
 
                             vehicle.clear();
 
@@ -1192,8 +1104,7 @@ public class SubmenuActivity extends Activity {
     ) {
 
         while (
-                vehicles.size()
-                        < MAX_VEHICLES
+                vehicles.size() < MAX_VEHICLES
         ) {
 
             vehicles.add(
@@ -1201,14 +1112,12 @@ public class SubmenuActivity extends Activity {
             );
         }
 
-        return vehicles.get(
-                index
-        );
+        return vehicles.get(index);
     }
 
 
     // ============================================================
-    // DATEN SPEICHERN
+    // SPEICHERN JSON
     // ============================================================
 
     private void saveVehicles() {
@@ -1219,10 +1128,7 @@ public class SubmenuActivity extends Activity {
                     new JSONArray();
 
 
-            for (
-                    Vehicle vehicle :
-                    vehicles
-            ) {
+            for (Vehicle vehicle : vehicles) {
 
                 JSONObject object =
                         new JSONObject();
@@ -1233,36 +1139,30 @@ public class SubmenuActivity extends Activity {
                         vehicle.exists
                 );
 
-
                 object.put(
                         "brand",
                         vehicle.brand
                 );
-
 
                 object.put(
                         "model",
                         vehicle.model
                 );
 
-
                 object.put(
                         "engine",
                         vehicle.engine
                 );
-
 
                 object.put(
                         "year",
                         vehicle.year
                 );
 
-
                 object.put(
                         "kilometers",
                         vehicle.kilometers
                 );
-
 
                 object.put(
                         "photo",
@@ -1270,9 +1170,7 @@ public class SubmenuActivity extends Activity {
                 );
 
 
-                array.put(
-                        object
-                );
+                array.put(object);
             }
 
 
@@ -1296,7 +1194,7 @@ public class SubmenuActivity extends Activity {
 
 
     // ============================================================
-    // DATEN LADEN
+    // LADEN JSON
     // ============================================================
 
     private void loadVehicles() {
@@ -1335,9 +1233,7 @@ public class SubmenuActivity extends Activity {
         try {
 
             JSONArray array =
-                    new JSONArray(
-                            saved
-                    );
+                    new JSONArray(saved);
 
 
             for (
@@ -1349,9 +1245,7 @@ public class SubmenuActivity extends Activity {
             ) {
 
                 JSONObject object =
-                        array.getJSONObject(
-                                i
-                        );
+                        array.getJSONObject(i);
 
 
                 Vehicle vehicle =
@@ -1364,13 +1258,11 @@ public class SubmenuActivity extends Activity {
                                 false
                         );
 
-
                 vehicle.brand =
                         object.optString(
                                 "brand",
                                 ""
                         );
-
 
                 vehicle.model =
                         object.optString(
@@ -1378,13 +1270,11 @@ public class SubmenuActivity extends Activity {
                                 ""
                         );
 
-
                 vehicle.engine =
                         object.optString(
                                 "engine",
                                 ""
                         );
-
 
                 vehicle.year =
                         object.optString(
@@ -1392,13 +1282,11 @@ public class SubmenuActivity extends Activity {
                                 ""
                         );
 
-
                 vehicle.kilometers =
                         object.optString(
                                 "kilometers",
                                 ""
                         );
-
 
                 vehicle.photo =
                         object.optString(
@@ -1407,50 +1295,32 @@ public class SubmenuActivity extends Activity {
                         );
 
 
-                vehicles.add(
-                        vehicle
-                );
+                vehicles.add(vehicle);
             }
 
-
-        } catch (Exception e) {
-
-            vehicles.clear();
+        } catch (Exception ignored) {
         }
 
 
         while (
-                vehicles.size()
-                        < MAX_VEHICLES
+                vehicles.size() < MAX_VEHICLES
         ) {
 
             vehicles.add(
                     new Vehicle()
             );
         }
-
-
-        while (
-                vehicles.size()
-                        > MAX_VEHICLES
-        ) {
-
-            vehicles.remove(
-                    vehicles.size() - 1
-            );
-        }
     }
 
 
     // ============================================================
-    // HINTERGRUND FELD
+    // FELD BACKGROUND
     // ============================================================
 
-    private android.graphics.drawable.GradientDrawable
-    createFieldBackground() {
+    private GradientDrawable createFieldBackground() {
 
-        android.graphics.drawable.GradientDrawable background =
-                new android.graphics.drawable.GradientDrawable();
+        GradientDrawable background =
+                new GradientDrawable();
 
 
         background.setColor(
@@ -1459,7 +1329,7 @@ public class SubmenuActivity extends Activity {
 
 
         background.setCornerRadius(
-                dp(12)
+                dp(13)
         );
 
 
@@ -1474,14 +1344,13 @@ public class SubmenuActivity extends Activity {
 
 
     // ============================================================
-    // HINTERGRUND PANEL
+    // FOTO BACKGROUND
     // ============================================================
 
-    private android.graphics.drawable.GradientDrawable
-    createPanelBackground() {
+    private GradientDrawable createPanelBackground() {
 
-        android.graphics.drawable.GradientDrawable background =
-                new android.graphics.drawable.GradientDrawable();
+        GradientDrawable background =
+                new GradientDrawable();
 
 
         background.setColor(
@@ -1490,7 +1359,7 @@ public class SubmenuActivity extends Activity {
 
 
         background.setCornerRadius(
-                dp(14)
+                dp(15)
         );
 
 
@@ -1509,7 +1378,7 @@ public class SubmenuActivity extends Activity {
 
 
     // ============================================================
-    // DUNKLER BUTTON
+    // DARK BUTTON
     // ============================================================
 
     private Button createDarkButton(
@@ -1520,20 +1389,15 @@ public class SubmenuActivity extends Activity {
                 new Button(this);
 
 
-        button.setText(
-                text
-        );
-
+        button.setText(text);
 
         button.setTextColor(
                 WHITE
         );
 
-
         button.setTextSize(
                 14
         );
-
 
         button.setTypeface(
                 Typeface.create(
@@ -1542,16 +1406,11 @@ public class SubmenuActivity extends Activity {
                 )
         );
 
-
         button.setGravity(
                 Gravity.CENTER
         );
 
-
-        button.setAllCaps(
-                false
-        );
-
+        button.setAllCaps(false);
 
         button.setPadding(
                 dp(5),
@@ -1561,8 +1420,8 @@ public class SubmenuActivity extends Activity {
         );
 
 
-        android.graphics.drawable.GradientDrawable background =
-                new android.graphics.drawable.GradientDrawable();
+        GradientDrawable background =
+                new GradientDrawable();
 
 
         background.setColor(
@@ -1599,7 +1458,7 @@ public class SubmenuActivity extends Activity {
 
 
     // ============================================================
-    // ROTER BUTTON
+    // RED BUTTON
     // ============================================================
 
     private Button createRedButton(
@@ -1610,20 +1469,15 @@ public class SubmenuActivity extends Activity {
                 new Button(this);
 
 
-        button.setText(
-                text
-        );
-
+        button.setText(text);
 
         button.setTextColor(
                 Color.WHITE
         );
 
-
         button.setTextSize(
                 15
         );
-
 
         button.setTypeface(
                 Typeface.create(
@@ -1632,19 +1486,15 @@ public class SubmenuActivity extends Activity {
                 )
         );
 
-
         button.setGravity(
                 Gravity.CENTER
         );
 
-
-        button.setAllCaps(
-                false
-        );
+        button.setAllCaps(false);
 
 
-        android.graphics.drawable.GradientDrawable background =
-                new android.graphics.drawable.GradientDrawable();
+        GradientDrawable background =
+                new GradientDrawable();
 
 
         background.setColor(
@@ -1695,7 +1545,6 @@ public class SubmenuActivity extends Activity {
                 LinearLayout.VERTICAL
         );
 
-
         content.setGravity(
                 Gravity.CENTER
         );
@@ -1709,16 +1558,13 @@ public class SubmenuActivity extends Activity {
                 pageTitle
         );
 
-
         title.setTextColor(
                 WHITE
         );
 
-
         title.setTextSize(
                 30
         );
-
 
         title.setTypeface(
                 Typeface.create(
@@ -1726,7 +1572,6 @@ public class SubmenuActivity extends Activity {
                         Typeface.BOLD
                 )
         );
-
 
         title.setGravity(
                 Gravity.CENTER
@@ -1750,16 +1595,13 @@ public class SubmenuActivity extends Activity {
                 "Dieser Bereich wird als Nächstes aufgebaut."
         );
 
-
         info.setTextColor(
                 GREY
         );
 
-
         info.setTextSize(
                 17
         );
-
 
         info.setGravity(
                 Gravity.CENTER
@@ -1792,19 +1634,15 @@ public class SubmenuActivity extends Activity {
         );
 
 
-        setContentView(
-                root
-        );
+        setContentView(root);
     }
 
 
     // ============================================================
-    // DP UMRECHNUNG
+    // DP
     // ============================================================
 
-    private int dp(
-            int value
-    ) {
+    private int dp(int value) {
 
         float density =
                 getResources()
@@ -1819,55 +1657,30 @@ public class SubmenuActivity extends Activity {
 
 
     // ============================================================
-    // FAHRZEUG DATENKLASSE
+    // FAHRZEUG
     // ============================================================
 
     private static class Vehicle {
 
-        boolean exists =
-                false;
+        boolean exists = false;
 
-        String brand =
-                "";
-
-        String model =
-                "";
-
-        String engine =
-                "";
-
-        String year =
-                "";
-
-        String kilometers =
-                "";
-
-        String photo =
-                "";
+        String brand = "";
+        String model = "";
+        String engine = "";
+        String year = "";
+        String kilometers = "";
+        String photo = "";
 
 
         void clear() {
 
-            exists =
-                    false;
-
-            brand =
-                    "";
-
-            model =
-                    "";
-
-            engine =
-                    "";
-
-            year =
-                    "";
-
-            kilometers =
-                    "";
-
-            photo =
-                    "";
+            exists = false;
+            brand = "";
+            model = "";
+            engine = "";
+            year = "";
+            kilometers = "";
+            photo = "";
         }
     }
 }
