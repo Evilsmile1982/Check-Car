@@ -15,6 +15,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowsManager;
 import android.view.WindowInsets;
 import android.widget.Button;
 import android.widget.EditText;
