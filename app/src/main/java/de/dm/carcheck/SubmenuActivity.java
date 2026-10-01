@@ -87,145 +87,16 @@ public class SubmenuActivity extends Activity {
 
     private void showVehicleManager() {
 
-        /*
-         * Hauptbildschirm
-         *
-         * Der komplette Inhalt bekommt eine vernünftige Höhe
-         * und wird anschließend als Block mittig positioniert.
-         */
-
-        FrameLayout screen = new FrameLayout(this);
+        final FrameLayout screen = new FrameLayout(this);
 
         screen.setBackgroundColor(
                 Color.rgb(3, 5, 8)
         );
 
-        // ========================================================
-        // INHALTSBLOCK
-        // ========================================================
-
-        LinearLayout content = new LinearLayout(this);
-
-        content.setOrientation(
-                LinearLayout.VERTICAL
-        );
-
-        content.setGravity(
-                Gravity.CENTER_HORIZONTAL
-        );
-
-        content.setPadding(
-                14,
-                0,
-                14,
-                0
-        );
-
-        FrameLayout.LayoutParams contentParams =
-                new FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                );
-
-        contentParams.gravity = Gravity.CENTER;
-
-        screen.addView(
-                content,
-                contentParams
-        );
-
-        // ========================================================
-        // TITEL
-        // ========================================================
-
-        TextView title = new TextView(this);
-
-        title.setText(
-                "MEIN AUTO"
-        );
-
-        title.setTextColor(
-                Color.WHITE
-        );
-
-        title.setTextSize(
-                28
-        );
-
-        title.setTypeface(
-                Typeface.DEFAULT,
-                Typeface.BOLD
-        );
-
-        title.setGravity(
-                Gravity.CENTER
-        );
-
-        title.setIncludeFontPadding(
-                true
-        );
-
-        LinearLayout.LayoutParams titleParams =
-                new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        65
-                );
-
-        titleParams.setMargins(
-                0,
-                0,
-                0,
-                2
-        );
-
-        content.addView(
-                title,
-                titleParams
-        );
-
-        // ========================================================
-        // FAHRZEUGZÄHLER
-        // ========================================================
-
-        carCounter = new TextView(this);
-
-        carCounter.setTextColor(
-                Color.rgb(
-                        185,
-                        190,
-                        200
-                )
-        );
-
-        carCounter.setTextSize(
-                15
-        );
-
-        carCounter.setGravity(
-                Gravity.CENTER
-        );
-
-        LinearLayout.LayoutParams counterParams =
-                new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        30
-                );
-
-        counterParams.setMargins(
-                0,
-                0,
-                0,
-                12
-        );
-
-        content.addView(
-                carCounter,
-                counterParams
-        );
-
-        // ========================================================
-        // FAHRZEUGFOTO
-        // ========================================================
+        /*
+         * Alles wird später anhand der echten Bildschirmgröße
+         * positioniert. Dadurch gibt es keine Überlappungen mehr.
+         */
 
         carImage = new ImageView(this);
 
@@ -234,37 +105,52 @@ public class SubmenuActivity extends Activity {
         );
 
         carImage.setBackgroundColor(
-                Color.rgb(
-                        14,
-                        17,
-                        22
-                )
+                Color.rgb(14, 17, 22)
         );
 
-        LinearLayout.LayoutParams imageParams =
-                new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        245
-                );
-
-        imageParams.setMargins(
-                0,
-                0,
-                0,
-                4
-        );
-
-        content.addView(
-                carImage,
-                imageParams
-        );
+        screen.addView(carImage);
 
         carImage.setOnClickListener(
                 v -> chooseCarImage()
         );
 
         // ========================================================
-        // FOTO HINWEIS
+        // TITEL
+        // ========================================================
+
+        TextView title = new TextView(this);
+
+        title.setText("MEIN AUTO");
+
+        title.setTextColor(Color.WHITE);
+
+        title.setTypeface(
+                Typeface.DEFAULT,
+                Typeface.BOLD
+        );
+
+        title.setGravity(Gravity.CENTER);
+
+        title.setIncludeFontPadding(true);
+
+        screen.addView(title);
+
+        // ========================================================
+        // ZÄHLER
+        // ========================================================
+
+        carCounter = new TextView(this);
+
+        carCounter.setTextColor(
+                Color.rgb(175, 180, 190)
+        );
+
+        carCounter.setGravity(Gravity.CENTER);
+
+        screen.addView(carCounter);
+
+        // ========================================================
+        // FOTO-HINWEIS
         // ========================================================
 
         TextView imageHint = new TextView(this);
@@ -274,38 +160,12 @@ public class SubmenuActivity extends Activity {
         );
 
         imageHint.setTextColor(
-                Color.rgb(
-                        195,
-                        200,
-                        210
-                )
+                Color.rgb(210, 215, 225)
         );
 
-        imageHint.setTextSize(
-                15
-        );
+        imageHint.setGravity(Gravity.CENTER);
 
-        imageHint.setGravity(
-                Gravity.CENTER
-        );
-
-        LinearLayout.LayoutParams hintParams =
-                new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        40
-                );
-
-        hintParams.setMargins(
-                0,
-                0,
-                0,
-                10
-        );
-
-        content.addView(
-                imageHint,
-                hintParams
-        );
+        screen.addView(imageHint);
 
         imageHint.setOnClickListener(
                 v -> chooseCarImage()
@@ -321,92 +181,24 @@ public class SubmenuActivity extends Activity {
         yearField = createField("Baujahr");
         kmField = createField("Kilometerstand");
 
-        content.addView(brandField);
-        content.addView(typeField);
-        content.addView(engineField);
-        content.addView(yearField);
-        content.addView(kmField);
+        screen.addView(brandField);
+        screen.addView(typeField);
+        screen.addView(engineField);
+        screen.addView(yearField);
+        screen.addView(kmField);
 
         // ========================================================
         // NAVIGATION
         // ========================================================
 
-        LinearLayout navigation =
-                new LinearLayout(this);
-
-        navigation.setOrientation(
-                LinearLayout.HORIZONTAL
-        );
-
-        navigation.setGravity(
-                Gravity.CENTER
-        );
-
-        LinearLayout.LayoutParams navigationParams =
-                new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        58
-                );
-
-        navigationParams.setMargins(
-                0,
-                12,
-                0,
-                8
-        );
-
-        content.addView(
-                navigation,
-                navigationParams
-        );
-
         previousButton =
-                createDarkButton(
-                        "‹  ZURÜCK"
-                );
+                createDarkButton("‹  ZURÜCK");
 
         nextButton =
-                createDarkButton(
-                        "WEITER  ›"
-                );
+                createDarkButton("WEITER  ›");
 
-        LinearLayout.LayoutParams previousParams =
-                new LinearLayout.LayoutParams(
-                        0,
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        1
-                );
-
-        previousParams.setMargins(
-                0,
-                0,
-                5,
-                0
-        );
-
-        navigation.addView(
-                previousButton,
-                previousParams
-        );
-
-        LinearLayout.LayoutParams nextParams =
-                new LinearLayout.LayoutParams(
-                        0,
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        1
-                );
-
-        nextParams.setMargins(
-                5,
-                0,
-                0,
-                0
-        );
-
-        navigation.addView(
-                nextButton,
-                nextParams
-        );
+        screen.addView(previousButton);
+        screen.addView(nextButton);
 
         previousButton.setOnClickListener(
                 v -> {
@@ -414,9 +206,7 @@ public class SubmenuActivity extends Activity {
                     saveCurrentVehicle();
 
                     if (selectedCar > 0) {
-
                         selectedCar--;
-
                         loadSelectedVehicle();
                     }
                 }
@@ -428,9 +218,7 @@ public class SubmenuActivity extends Activity {
                     saveCurrentVehicle();
 
                     if (selectedCar < MAX_CARS - 1) {
-
                         selectedCar++;
-
                         loadSelectedVehicle();
                     }
                 }
@@ -445,23 +233,7 @@ public class SubmenuActivity extends Activity {
                         "FAHRZEUG SPEICHERN"
                 );
 
-        LinearLayout.LayoutParams saveParams =
-                new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        58
-                );
-
-        saveParams.setMargins(
-                0,
-                0,
-                0,
-                7
-        );
-
-        content.addView(
-                saveButton,
-                saveParams
-        );
+        screen.addView(saveButton);
 
         saveButton.setOnClickListener(
                 v -> {
@@ -486,872 +258,176 @@ public class SubmenuActivity extends Activity {
                         "FAHRZEUG LÖSCHEN"
                 );
 
-        LinearLayout.LayoutParams deleteParams =
-                new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        48
-                );
-
-        deleteParams.setMargins(
-                0,
-                0,
-                0,
-                8
-        );
-
-        content.addView(
-                deleteButton,
-                deleteParams
-        );
+        screen.addView(deleteButton);
 
         deleteButton.setOnClickListener(
                 v -> deleteCurrentVehicle()
         );
 
         // ========================================================
-        // SCREEN ANZEIGEN
+        // SCREEN SETZEN
         // ========================================================
 
         setContentView(screen);
 
-        loadSelectedVehicle();
+        /*
+         * WICHTIG:
+         * Erst nachdem Android die echte Bildschirmgröße kennt,
+         * werden alle Elemente sauber verteilt.
+         */
+
+        screen.post(() -> {
+
+            arrangeScreen(
+                    screen,
+                    title,
+                    imageHint,
+                    saveButton,
+                    deleteButton
+            );
+
+            loadSelectedVehicle();
+        });
     }
 
     // ============================================================
-    // EINGABEFELD
+    // PROFESSIONELLE BILDSCHIRMAUFTEILUNG
     // ============================================================
 
-    private EditText createField(String hint) {
-
-        EditText field =
-                new EditText(this);
-
-        field.setHint(hint);
-
-        field.setHintTextColor(
-                Color.rgb(
-                        125,
-                        130,
-                        140
-                )
-        );
-
-        field.setTextColor(
-                Color.WHITE
-        );
-
-        field.setTextSize(
-                17
-        );
-
-        field.setSingleLine(
-                true
-        );
-
-        field.setGravity(
-                Gravity.CENTER_VERTICAL
-        );
-
-        field.setPadding(
-                15,
-                0,
-                15,
-                0
-        );
-
-        android.graphics.drawable.GradientDrawable background =
-                new android.graphics.drawable.GradientDrawable();
-
-        background.setColor(
-                Color.rgb(
-                        12,
-                        15,
-                        20
-                )
-        );
-
-        background.setCornerRadius(
-                12
-        );
-
-        background.setStroke(
-                2,
-                Color.rgb(
-                        60,
-                        65,
-                        75
-                )
-        );
-
-        field.setBackground(
-                background
-        );
-
-        LinearLayout.LayoutParams params =
-                new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        55
-                );
-
-        params.setMargins(
-                0,
-                3,
-                0,
-                3
-        );
-
-        field.setLayoutParams(params);
-
-        return field;
-    }
-
-    // ============================================================
-    // DUNKLER BUTTON
-    // ============================================================
-
-    private Button createDarkButton(String text) {
-
-        Button button =
-                new Button(this);
-
-        button.setText(text);
-
-        button.setTextColor(
-                Color.WHITE
-        );
-
-        button.setTextSize(
-                14
-        );
-
-        button.setAllCaps(false);
-
-        android.graphics.drawable.GradientDrawable background =
-                new android.graphics.drawable.GradientDrawable();
-
-        background.setColor(
-                Color.rgb(
-                        14,
-                        17,
-                        22
-                )
-        );
-
-        background.setCornerRadius(
-                13
-        );
-
-        background.setStroke(
-                2,
-                Color.rgb(
-                        70,
-                        75,
-                        85
-                )
-        );
-
-        button.setBackground(background);
-
-        return button;
-    }
-
-    // ============================================================
-    // ROTER BUTTON
-    // ============================================================
-
-    private Button createRedButton(String text) {
-
-        Button button =
-                new Button(this);
-
-        button.setText(text);
-
-        button.setTextColor(
-                Color.WHITE
-        );
-
-        button.setTextSize(
-                15
-        );
-
-        button.setTypeface(
-                Typeface.DEFAULT,
-                Typeface.BOLD
-        );
-
-        button.setAllCaps(false);
-
-        android.graphics.drawable.GradientDrawable background =
-                new android.graphics.drawable.GradientDrawable();
-
-        background.setColor(
-                Color.rgb(
-                        145,
-                        5,
-                        12
-                )
-        );
-
-        background.setCornerRadius(
-                14
-        );
-
-        background.setStroke(
-                2,
-                Color.rgb(
-                        235,
-                        25,
-                        35
-                )
-        );
-
-        button.setBackground(background);
-
-        return button;
-    }
-
-    // ============================================================
-    // FOTO AUSWÄHLEN
-    // ============================================================
-
-    private void chooseCarImage() {
-
-        Intent intent =
-                new Intent(
-                        Intent.ACTION_OPEN_DOCUMENT
-                );
-
-        intent.setType(
-                "image/*"
-        );
-
-        intent.addCategory(
-                Intent.CATEGORY_OPENABLE
-        );
-
-        intent.addFlags(
-                Intent.FLAG_GRANT_READ_URI_PERMISSION
-        );
-
-        intent.addFlags(
-                Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
-        );
-
-        startActivityForResult(
-                intent,
-                PICK_IMAGE
-        );
-    }
-
-    // ============================================================
-    // FOTO ERHALTEN
-    // ============================================================
-
-    @Override
-    protected void onActivityResult(
-            int requestCode,
-            int resultCode,
-            Intent data
+    private void arrangeScreen(
+            FrameLayout screen,
+            TextView title,
+            TextView imageHint,
+            Button saveButton,
+            Button deleteButton
     ) {
 
-        super.onActivityResult(
-                requestCode,
-                resultCode,
-                data
+        int width = screen.getWidth();
+        int height = screen.getHeight();
+
+        /*
+         * Wir verwenden die echte Bildschirmhöhe.
+         *
+         * Dadurch funktioniert die Darstellung unabhängig davon,
+         * ob das Gerät 720, 1080 oder eine andere Auflösung hat.
+         */
+
+        int side = Math.max(
+                12,
+                (int)(width * 0.018f)
         );
 
-        if (
-                requestCode == PICK_IMAGE
-                        &&
-                resultCode == RESULT_OK
-                        &&
-                data != null
-                        &&
-                data.getData() != null
-        ) {
-
-            Uri uri =
-                    data.getData();
-
-            try {
-
-                getContentResolver()
-                        .takePersistableUriPermission(
-                                uri,
-                                Intent.FLAG_GRANT_READ_URI_PERMISSION
-                        );
-
-            } catch (Exception ignored) {
-            }
-
-            Vehicle vehicle =
-                    getCurrentVehicle();
-
-            vehicle.photo =
-                    uri.toString();
-
-            loadPhoto(vehicle);
-
-            saveVehicles();
-        }
-    }
-
-    // ============================================================
-    // FAHRZEUG LADEN
-    // ============================================================
-
-    private void loadSelectedVehicle() {
-
-        Vehicle vehicle =
-                getCurrentVehicle();
-
-        brandField.setText(
-                vehicle.brand
-        );
-
-        typeField.setText(
-                vehicle.type
-        );
-
-        engineField.setText(
-                vehicle.engine
-        );
-
-        yearField.setText(
-                vehicle.year
-        );
-
-        kmField.setText(
-                vehicle.kilometers
-        );
-
-        loadPhoto(vehicle);
-
-        updateNavigation();
-    }
-
-    // ============================================================
-    // FOTO LADEN
-    // ============================================================
-
-    private void loadPhoto(Vehicle vehicle) {
-
-        if (
-                vehicle.photo == null
-                        ||
-                vehicle.photo.isEmpty()
-        ) {
-
-            carImage.setColorFilter(
-                    Color.rgb(
-                            70,
-                            75,
-                            85
-                    ),
-                    PorterDuff.Mode.SRC_IN
-            );
-
-            carImage.setImageResource(
-                    android.R.drawable.ic_menu_camera
-            );
-
-            return;
-        }
-
-        try {
-
-            carImage.clearColorFilter();
-
-            Uri uri =
-                    Uri.parse(
-                            vehicle.photo
-                    );
-
-            InputStream input =
-                    getContentResolver()
-                            .openInputStream(uri);
-
-            Bitmap bitmap =
-                    BitmapFactory.decodeStream(input);
-
-            if (input != null) {
-                input.close();
-            }
-
-            carImage.setImageBitmap(bitmap);
-
-        } catch (Exception e) {
-
-            carImage.setImageResource(
-                    android.R.drawable.ic_menu_camera
-            );
-        }
-    }
-
-    // ============================================================
-    // AKTUELLES FAHRZEUG SPEICHERN
-    // ============================================================
-
-    private void saveCurrentVehicle() {
-
-        Vehicle vehicle =
-                getCurrentVehicle();
-
-        vehicle.brand =
-                brandField
-                        .getText()
-                        .toString()
-                        .trim();
-
-        vehicle.type =
-                typeField
-                        .getText()
-                        .toString()
-                        .trim();
-
-        vehicle.engine =
-                engineField
-                        .getText()
-                        .toString()
-                        .trim();
-
-        vehicle.year =
-                yearField
-                        .getText()
-                        .toString()
-                        .trim();
-
-        vehicle.kilometers =
-                kmField
-                        .getText()
-                        .toString()
-                        .trim();
-
-        if (!vehicle.isEmpty()) {
-            vehicle.exists = true;
-        }
-    }
-
-    // ============================================================
-    // AKTUELLES FAHRZEUG
-    // ============================================================
-
-    private Vehicle getCurrentVehicle() {
-
-        while (vehicles.size() <= selectedCar) {
-
-            vehicles.add(
-                    new Vehicle()
-            );
-        }
-
-        return vehicles.get(selectedCar);
-    }
-
-    // ============================================================
-    // NAVIGATION AKTUALISIEREN
-    // ============================================================
-
-    private void updateNavigation() {
-
-        carCounter.setText(
-                "FAHRZEUG "
-                        +
-                (selectedCar + 1)
-                        +
-                " / "
-                        +
-                MAX_CARS
-        );
-
-        previousButton.setEnabled(
-                selectedCar > 0
-        );
-
-        previousButton.setAlpha(
-                selectedCar > 0
-                        ? 1f
-                        : 0.35f
-        );
-
-        nextButton.setEnabled(
-                selectedCar < MAX_CARS - 1
-        );
-
-        nextButton.setAlpha(
-                selectedCar < MAX_CARS - 1
-                        ? 1f
-                        : 0.35f
-        );
-    }
-
-    // ============================================================
-    // FAHRZEUG LÖSCHEN
-    // ============================================================
-
-    private void deleteCurrentVehicle() {
-
-        new AlertDialog.Builder(this)
-
-                .setTitle(
-                        "Fahrzeug löschen?"
-                )
-
-                .setMessage(
-                        "Das aktuell ausgewählte Fahrzeug wird gelöscht."
-                )
-
-                .setNegativeButton(
-                        "ABBRECHEN",
-                        null
-                )
-
-                .setPositiveButton(
-                        "LÖSCHEN",
-                        (dialog, which) -> {
-
-                            Vehicle vehicle =
-                                    getCurrentVehicle();
-
-                            vehicle.clear();
-
-                            saveVehicles();
-
-                            loadSelectedVehicle();
-
-                            Toast.makeText(
-                                    this,
-                                    "Fahrzeug gelöscht",
-                                    Toast.LENGTH_SHORT
-                            ).show();
-                        }
-                )
-
-                .show();
-    }
-
-    // ============================================================
-    // FAHRZEUGE SPEICHERN
-    // ============================================================
-
-    private void saveVehicles() {
-
-        try {
-
-            JSONArray array =
-                    new JSONArray();
-
-            for (Vehicle vehicle : vehicles) {
-
-                JSONObject object =
-                        new JSONObject();
-
-                object.put(
-                        "exists",
-                        vehicle.exists
+        int usableWidth =
+                width - side * 2;
+
+        // --------------------------------------------------------
+        // Gesamtbereich
+        // --------------------------------------------------------
+
+        int blockHeight =
+                Math.min(
+                        (int)(height * 0.88f),
+                        1180
                 );
 
-                object.put(
-                        "brand",
-                        vehicle.brand
-                );
+        int top =
+                (height - blockHeight) / 2;
 
-                object.put(
-                        "type",
-                        vehicle.type
-                );
+        /*
+         * Falls der Bildschirm sehr klein ist,
+         * bleibt trotzdem ein kleiner Rand.
+         */
 
-                object.put(
-                        "engine",
-                        vehicle.engine
-                );
-
-                object.put(
-                        "year",
-                        vehicle.year
-                );
-
-                object.put(
-                        "kilometers",
-                        vehicle.kilometers
-                );
-
-                object.put(
-                        "photo",
-                        vehicle.photo
-                );
-
-                array.put(object);
-            }
-
-            prefs.edit()
-                    .putString(
-                            "vehicles",
-                            array.toString()
-                    )
-                    .apply();
-
-        } catch (Exception ignored) {
-        }
-    }
-
-    // ============================================================
-    // FAHRZEUGE LADEN
-    // ============================================================
-
-    private void loadVehicles() {
-
-        vehicles.clear();
-
-        String data =
-                prefs.getString(
-                        "vehicles",
-                        ""
-                );
-
-        if (data.isEmpty()) {
-
-            for (
-                    int i = 0;
-                    i < MAX_CARS;
-                    i++
-            ) {
-
-                vehicles.add(
-                        new Vehicle()
-                );
-            }
-
-            return;
+        if (top < 20) {
+            top = 20;
         }
 
-        try {
+        // --------------------------------------------------------
+        // Größen
+        // --------------------------------------------------------
 
-            JSONArray array =
-                    new JSONArray(data);
+        int titleHeight =
+                Math.max(
+                        58,
+                        (int)(height * 0.055f)
+                );
 
-            for (
-                    int i = 0;
-                    i < array.length();
-                    i++
-            ) {
+        int counterHeight =
+                Math.max(
+                        28,
+                        (int)(height * 0.030f)
+                );
 
-                JSONObject object =
-                        array.getJSONObject(i);
+        int photoHeight =
+                Math.max(
+                        240,
+                        (int)(height * 0.205f)
+                );
 
-                Vehicle vehicle =
-                        new Vehicle();
+        int hintHeight =
+                Math.max(
+                        38,
+                        (int)(height * 0.038f)
+                );
 
-                vehicle.exists =
-                        object.optBoolean(
-                                "exists",
-                                false
-                        );
+        int fieldHeight =
+                Math.max(
+                        48,
+                        (int)(height * 0.043f)
+                );
 
-                vehicle.brand =
-                        object.optString(
-                                "brand",
-                                ""
-                        );
-
-                vehicle.type =
-                        object.optString(
-                                "type",
-                                ""
-                        );
-
-                vehicle.engine =
-                        object.optString(
-                                "engine",
-                                ""
-                        );
-
-                vehicle.year =
-                        object.optString(
-                                "year",
-                                ""
-                        );
-
-                vehicle.kilometers =
-                        object.optString(
-                                "kilometers",
-                                ""
-                        );
-
-                vehicle.photo =
-                        object.optString(
-                                "photo",
-                                ""
-                        );
-
-                vehicles.add(vehicle);
-            }
-
-        } catch (Exception ignored) {
-        }
-
-        while (
-                vehicles.size()
-                        < MAX_CARS
-        ) {
-
-            vehicles.add(
-                    new Vehicle()
-            );
-        }
-
-        while (
-                vehicles.size()
-                        > MAX_CARS
-        ) {
-
-            vehicles.remove(
-                    vehicles.size() - 1
-            );
-        }
-    }
-
-    // ============================================================
-    // ANDERE MENÜPUNKTE
-    // ============================================================
-
-    private void showPlaceholder() {
-
-        FrameLayout root =
-                new FrameLayout(this);
-
-        root.setBackgroundColor(
-                Color.rgb(
-                        3,
+        int fieldGap =
+                Math.max(
                         5,
-                        8
-                )
-        );
-
-        LinearLayout box =
-                new LinearLayout(this);
-
-        box.setOrientation(
-                LinearLayout.VERTICAL
-        );
-
-        box.setGravity(
-                Gravity.CENTER
-        );
-
-        TextView title =
-                new TextView(this);
-
-        title.setText(
-                currentTitle
-        );
-
-        title.setTextColor(
-                Color.WHITE
-        );
-
-        title.setTextSize(
-                30
-        );
-
-        title.setTypeface(
-                Typeface.DEFAULT,
-                Typeface.BOLD
-        );
-
-        title.setGravity(
-                Gravity.CENTER
-        );
-
-        box.addView(title);
-
-        TextView info =
-                new TextView(this);
-
-        info.setText(
-                "Dieser Bereich wird als Nächstes aufgebaut."
-        );
-
-        info.setTextColor(
-                Color.LTGRAY
-        );
-
-        info.setTextSize(
-                17
-        );
-
-        info.setGravity(
-                Gravity.CENTER
-        );
-
-        LinearLayout.LayoutParams infoParams =
-                new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        60
+                        (int)(height * 0.006f)
                 );
 
-        box.addView(
-                info,
-                infoParams
-        );
-
-        FrameLayout.LayoutParams boxParams =
-                new FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
+        int navigationHeight =
+                Math.max(
+                        52,
+                        (int)(height * 0.050f)
                 );
 
-        boxParams.gravity =
-                Gravity.CENTER;
+        int saveHeight =
+                Math.max(
+                        52,
+                        (int)(height * 0.050f)
+                );
 
-        root.addView(
-                box,
-                boxParams
+        int deleteHeight =
+                Math.max(
+                        45,
+                        (int)(height * 0.043f)
+                );
+
+        int gapSmall =
+                Math.max(
+                        5,
+                        (int)(height * 0.007f)
+                );
+
+        int gapMedium =
+                Math.max(
+                        10,
+                        (int)(height * 0.012f)
+                );
+
+        // --------------------------------------------------------
+        // Position
+        // --------------------------------------------------------
+
+        int y = top;
+
+        // ========================================================
+        // TITEL
+        // ========================================================
+
+        place(
+                title,
+                side,
+                y,
+                usableWidth,
+                titleHeight
         );
 
-        setContentView(root);
-    }
-
-    // ============================================================
-    // FAHRZEUGKLASSE
-    // ============================================================
-
-    private static class Vehicle {
-
-        boolean exists = false;
-
-        String brand = "";
-        String type = "";
-        String engine = "";
-        String year = "";
-        String kilometers = "";
-        String photo = "";
-
-        boolean isEmpty() {
-
-            return brand.isEmpty()
-                    &&
-                    type.isEmpty()
-                    &&
-                    engine.isEmpty()
-                    &&
-                    year.isEmpty()
-                    &&
-                    kilometers.isEmpty()
-                    &&
-                    photo.isEmpty();
-        }
-
-        void clear() {
-
-            exists = false;
-
-            brand = "";
-            type = "";
-            engine = "";
-            year = "";
-            kilometers = "";
-            photo = "";
-        }
-    }
-}
+        title
