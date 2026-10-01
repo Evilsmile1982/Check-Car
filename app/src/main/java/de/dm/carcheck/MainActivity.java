@@ -85,7 +85,7 @@ public class MainActivity extends Activity {
 
             background = BitmapFactory.decodeResource(
                     getResources(),
-                    R.drawable.home_background1
+                    R.drawable.home_background_centered
             );
 
             logo = BitmapFactory.decodeResource(
